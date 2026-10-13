@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Roll a random word and freestyle about it for one guided minute.">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Freestyle Dice">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+html{background:var(--bg,#fff)}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+button{-webkit-user-select:none;user-select:none}
+</style>
+<title>Freestyle Dice</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,400..900&family=Figtree:wght@400;600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,700;6..12,800&family=Nunito:wght@600;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: iOS-style large title over a slow-drifting color field; frosted glass panels, pill controls, spring easing everywhere. */
+:root{
+  --bg:#F5F5F7; --glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.82); --edge:rgba(255,255,255,.75); --hair:rgba(60,60,67,.12);
+  --ink:#1C1C1E; --muted:rgba(60,60,67,.62); --faint:rgba(60,60,67,.32); --blue:#007AFF; --blue-ink:#FFFFFF;
+  --b1:#B9D3FF; --b2:#D6CCFF; --b3:#C4E8F2; --b4:#E4ECFF; --blobO:.7;
+  --shadow:0 1px 1px rgba(0,0,0,.04),0 10px 30px -8px rgba(30,40,80,.18);
+  --ring1:#FA114F; --ring2:#FF6A3D; --chipS:85%; --chipL:56%;
+  --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "PingFang SC", system-ui, sans-serif;
+  --round:"SF Pro Rounded", ui-rounded, -apple-system, system-ui, sans-serif;
+  --mono:"SF Mono", ui-monospace, Menlo, monospace;
+  --spring:cubic-bezier(.32,.72,0,1); --pop:cubic-bezier(.34,1.56,.64,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1D1D1F; --glass:rgba(40,40,46,.5); --glass-strong:rgba(60,60,68,.7); --edge:rgba(255,255,255,.14); --hair:rgba(255,255,255,.1);
+  --ink:#F5F5F7; --muted:rgba(235,235,245,.62); --faint:rgba(235,235,245,.3); --blue:#0A84FF; --blue-ink:#FFFFFF;
+  --b1:#1C3170; --b2:#2E2466; --b3:#0E3A48; --b4:#141A3A; --blobO:.7;
+  --shadow:0 1px 1px rgba(0,0,0,.3),0 14px 40px -10px rgba(0,0,0,.7); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#1D1D1F; --glass:rgba(40,40,46,.5); --glass-strong:rgba(60,60,68,.7); --edge:rgba(255,255,255,.14); --hair:rgba(255,255,255,.1);
+  --ink:#F5F5F7; --muted:rgba(235,235,245,.62); --faint:rgba(235,235,245,.3); --blue:#0A84FF; --blue-ink:#FFFFFF;
+  --b1:#1C3170; --b2:#2E2466; --b3:#0E3A48; --b4:#141A3A; --blobO:.7;
+  --shadow:0 1px 1px rgba(0,0,0,.3),0 14px 40px -10px rgba(0,0,0,.7); color-scheme:dark }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.45;letter-spacing:-.01em;padding-inline:16px;padding-block:28px 56px;-webkit-font-smoothing:antialiased}
+.field{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.field i{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(70px);opacity:var(--blobO);animation:drift 26s var(--spring) infinite alternate}
+.field i:nth-child(1){background:var(--b1);top:-25vmax;left:-20vmax}
+.field i:nth-child(2){background:var(--b2);top:10vmax;right:-28vmax;animation-duration:31s;animation-delay:-8s}
+.field i:nth-child(3){background:var(--b3);bottom:-30vmax;left:-10vmax;animation-duration:36s;animation-delay:-4s}
+.field i:nth-child(4){background:var(--b4);bottom:-20vmax;right:-20vmax;width:40vmax;height:40vmax;animation-duration:29s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(8vmax,6vmax) scale(1.12)}100%{transform:translate(-6vmax,10vmax) scale(.94)}}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:1px solid var(--edge);box-shadow:var(--shadow)}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-direction:column;gap:2px;padding:0 4px 4px}
+.eyebrow{font:600 .8rem var(--font);letter-spacing:.02em;color:var(--muted);text-transform:uppercase;margin:0}
+.logo{margin:0;font:700 2.125rem/1.15 var(--font);letter-spacing:-.025em}
+.stats{display:flex;gap:8px;margin-top:10px}
+.stats span{font:500 .78rem var(--font);color:var(--muted);padding:5px 11px;border-radius:999px;font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+.cats{display:flex;gap:6px;overflow-x:auto;padding:5px;border-radius:999px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:none;font:500 .84rem var(--font);padding:7px 14px;border-radius:999px;border:none;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .35s var(--spring),color .35s var(--spring),transform .35s var(--spring)}
+.cat:not(.all)::before{content:"";width:7px;height:7px;border-radius:50%;background:hsl(var(--h) var(--chipS) var(--chipL))}
+.cat:active{transform:scale(.94)}
+.cat[aria-pressed="true"]{background:var(--glass-strong);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px -4px rgba(0,0,0,.12)}
+.card{border-radius:30px;padding:24px 24px 26px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:transform .5s var(--spring)}
+.card.bump{transform:scale(.985)}
+.card .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.chip{font:600 .74rem var(--font);color:hsl(var(--h,220) var(--chipS) var(--chipL));display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.04em}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px color-mix(in srgb,currentColor 18%,transparent)}
+.num{font:500 .72rem var(--mono);color:var(--faint)}
+.word{font:700 clamp(2.5rem,11vw,3.6rem)/1.04 var(--font);letter-spacing:-.035em;margin:14px 0 2px;text-wrap:balance;overflow-wrap:anywhere;min-height:1.04em;transition:filter .12s,opacity .12s,transform .12s}
+.word.spin{filter:blur(3px);opacity:.45;transform:translateY(-3px)}
+.word.land{animation:land .7s var(--spring)}
+@keyframes land{0%{filter:blur(14px);opacity:0;transform:scale(.94) translateY(8px)}100%{filter:none;opacity:1;transform:none}}
+.def{margin:0;color:var(--muted);font-size:1.02rem;max-width:60ch;animation:fade .6s var(--spring)}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.roll{font:600 1.06rem var(--font);background:var(--blue);color:var(--blue-ink);border:none;border-radius:999px;padding:17px 22px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 24px -8px color-mix(in srgb,var(--blue) 70%,transparent);transition:transform .45s var(--pop),box-shadow .3s,filter .2s}
+.roll:hover{filter:brightness(1.06)}
+.roll:active{transform:scale(.96);transition-duration:.12s}
+.roll .die{width:20px;height:20px;border:1.8px solid currentColor;border-radius:6px;display:grid;grid-template-columns:repeat(3,1fr);padding:2px}
+.roll .die i{width:3px;height:3px;border-radius:50%;margin:auto;background:transparent}
+.roll .die i.on{background:currentColor}
+.roll.rolling .die{animation:tumble .8s var(--spring) infinite}
+@keyframes tumble{to{transform:rotate(360deg)}}
+button:focus-visible,.cat:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px}
+.timer{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;border-radius:28px;padding:18px 20px}
+.ring{position:relative;width:112px;height:112px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.ring circle{stroke-width:13}
+.ring .track{stroke:color-mix(in srgb,var(--ring1) 18%,transparent)}
+.ring .bar{stroke:url(#gTalk);transition:stroke-dashoffset .25s linear;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--ring1) 40%,transparent))}
+.ring .bar.prep{stroke:url(#gPrep)}
+.ring .bar.late{stroke:url(#gTalk)}
+.ring .t{position:absolute;inset:0;display:grid;place-items:center;font:600 1.5rem var(--round);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.ring .t small{display:block;font:500 .66rem var(--font);color:var(--muted);text-align:center;margin-top:-2px;text-transform:capitalize}
+.tside{display:flex;flex-direction:column;gap:9px;min-width:0}
+.phase{font:600 1.12rem var(--font);line-height:1.25;margin:0;letter-spacing:-.015em}
+.phase-sub{margin:0;color:var(--muted);font-size:.9rem}
+.tbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:600 .88rem var(--font);border:none;border-radius:999px;padding:8px 16px;background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink);cursor:pointer;transition:transform .4s var(--pop),background .2s}
+.btn:active{transform:scale(.93);transition-duration:.1s}
+.btn.go{background:var(--ring1);color:#fff}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted);cursor:pointer}
+.toggle input{appearance:none;-webkit-appearance:none;width:38px;height:23px;border-radius:999px;background:color-mix(in srgb,var(--ink) 16%,transparent);position:relative;cursor:pointer;transition:background .3s var(--spring);margin:0}
+.toggle input::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .35s var(--pop)}
+.toggle input:checked{background:#34C759}
+.toggle input:checked::after{transform:translateX(15px)}
+.steps{display:flex;gap:4px}
+.steps span{flex:1;height:4px;border-radius:2px;background:color-mix(in srgb,var(--ink) 10%,transparent);transition:background .5s var(--spring)}
+.steps span.on{background:var(--ring1)}
+h2{font:700 1.25rem var(--font);letter-spacing:-.02em;margin:0}
+.angles{display:flex;flex-direction:column;border-radius:22px;overflow:hidden}
+.angle{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:center;padding:14px 16px;min-width:0;position:relative;animation:fade .55s var(--spring) both}
+.angle:nth-child(2){animation-delay:.05s}.angle:nth-child(3){animation-delay:.1s}
+.angle+.angle::before{content:"";position:absolute;top:0;left:56px;right:0;height:1px;background:var(--hair)}
+.angle .ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font:700 .78rem var(--round);color:#fff;background:hsl(var(--h) var(--chipS) var(--chipL))}
+.angle p{margin:0;font-size:.97rem}
+.sect{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.sect .row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 4px}
+.sect>h2{padding:0 4px}
+.link{background:none;border:none;color:var(--blue);font:400 .95rem var(--font);cursor:pointer;padding:4px;transition:opacity .2s}
+.link:active{opacity:.5}
+.phrase{border-radius:22px;padding:14px 18px;font:600 1.05rem var(--font);letter-spacing:-.01em}
+.phrase small{display:block;font:600 .7rem var(--font);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}
+.tip{font-size:.86rem;color:var(--muted);margin:0;padding:0 6px}
+.done{display:flex;flex-direction:column;gap:10px;border-radius:24px;padding:18px;animation:sheet .6s var(--spring)}
+@keyframes sheet{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.done h2{font-size:1.1rem}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.check{font:500 .86rem var(--font);border:none;border-radius:999px;padding:7px 14px;background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink);cursor:pointer;transition:transform .4s var(--pop),background .25s}
+.check:active{transform:scale(.92)}
+.check[aria-pressed="true"]{background:#34C759;color:#fff}
+.history{display:flex;flex-wrap:wrap;gap:8px}
+.history button{font:500 .88rem var(--font);border:1px solid var(--edge);border-radius:999px;padding:7px 13px;background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;transition:transform .4s var(--pop)}
+.history button::before{content:"";width:6px;height:6px;border-radius:50%;background:hsl(var(--h) var(--chipS) var(--chipL))}
+.history button:active{transform:scale(.93)}
+.empty{color:var(--muted);font-size:.88rem;margin:0;padding:0 4px}
+footer{font-size:.78rem;color:var(--faint);text-align:center;margin-top:6px}
+kbd{font:500 .72rem var(--mono);border:1px solid var(--hair);border-radius:5px;padding:1px 5px;background:var(--glass)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:5}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:380px){.timer{grid-template-columns:1fr;justify-items:center}.tside{align-items:center;text-align:center}.tbtns{justify-content:center}}
+
+/* Monochrome: pure white / pure black only */
+:root{--bg:#FFFFFF;--glass:rgba(0,0,0,.035);--glass-strong:#FFFFFF;--edge:rgba(0,0,0,.08);--hair:rgba(0,0,0,.08);--ink:#1D1D1F;--muted:rgba(0,0,0,.55);--faint:rgba(0,0,0,.3);--blue:#1D1D1F;--blue-ink:#FFFFFF;--ring1:#1D1D1F;--shadow:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1D1D1F;--glass:rgba(255,255,255,.06);--glass-strong:rgba(255,255,255,.16);--edge:rgba(255,255,255,.1);--hair:rgba(255,255,255,.1);--ink:#FFFFFF;--muted:rgba(255,255,255,.58);--faint:rgba(255,255,255,.32);--blue:#FFFFFF;--blue-ink:#1D1D1F;--ring1:#FFFFFF;--shadow:none}}
+:root[data-theme="dark"]{--bg:#1D1D1F;--glass:rgba(255,255,255,.06);--glass-strong:rgba(255,255,255,.16);--edge:rgba(255,255,255,.1);--hair:rgba(255,255,255,.1);--ink:#FFFFFF;--muted:rgba(255,255,255,.58);--faint:rgba(255,255,255,.32);--blue:#FFFFFF;--blue-ink:#1D1D1F;--ring1:#FFFFFF;--shadow:none}
+.field,#confetti{display:none}
+.cat:not(.all)::before,.history button::before{background:currentColor;opacity:.5}
+.cat[aria-pressed="true"]{background:var(--ink);color:var(--bg);box-shadow:none}
+.chip{color:var(--muted)}
+.chip::before{box-shadow:none}
+.roll{box-shadow:none}
+.ring .track{stroke:var(--hair)}
+.ring .bar,.ring .bar.prep,.ring .bar.late{stroke:var(--ink);filter:none}
+.ring .bar.prep{opacity:.45}
+.btn.go{background:var(--ink);color:var(--bg)}
+.toggle input:checked{background:var(--ink)}
+.toggle input::after{background:var(--bg);box-shadow:0 0 0 1px var(--hair)}
+.toggle input:checked::after{background:var(--bg)}
+.angle .ic{background:var(--ink);color:var(--bg)}
+.check[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.link{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* Always white page, black type */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#FFFFFF;--glass:rgba(0,0,0,.035);--glass-strong:#FFFFFF;--edge:rgba(0,0,0,.08);--hair:rgba(0,0,0,.08);--ink:#1D1D1F;--muted:rgba(0,0,0,.55);--faint:rgba(0,0,0,.3);--blue:#1D1D1F;--blue-ink:#FFFFFF;--ring1:#1D1D1F;--shadow:none;color-scheme:light}}
+:root[data-theme="dark"]{--bg:#FFFFFF;--glass:rgba(0,0,0,.035);--glass-strong:#FFFFFF;--edge:rgba(0,0,0,.08);--hair:rgba(0,0,0,.08);--ink:#1D1D1F;--muted:rgba(0,0,0,.55);--faint:rgba(0,0,0,.3);--blue:#1D1D1F;--blue-ink:#FFFFFF;--ring1:#1D1D1F;--shadow:none;color-scheme:light}
+/* ===== Design-system switcher ===== */
+:root{--pri:var(--ink);--on-pri:var(--bg);--sel:var(--ink);--on-sel:var(--bg);--rc:30px;--rt:28px;--rs:22px;--rb:999px;--rp:999px}
+.card{border-radius:var(--rc)} .timer{border-radius:var(--rt)} .angles,.phrase,.done{border-radius:var(--rs)}
+.roll{border-radius:var(--rb);background:var(--pri);color:var(--on-pri)}
+.btn,.check,.cat,.history button,.stats span{border-radius:var(--rp)}
+.ring .bar,.ring .bar.prep,.ring .bar.late{stroke:var(--ring1)}
+.ring .track{stroke:color-mix(in srgb,var(--ring1) 14%,transparent)}
+.btn.go,.check[aria-pressed="true"],.toggle input:checked,.angle .ic{background:var(--pri);color:var(--on-pri)}
+.cat[aria-pressed="true"]{background:var(--sel);color:var(--on-sel)}
+.link{color:var(--pri)}
+.styles{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 6px;margin-bottom:-4px}
+.styles::-webkit-scrollbar{display:none}
+.sty{flex:none;display:flex;align-items:center;gap:7px;font:500 .78rem var(--font);color:var(--muted);background:transparent;border:1px solid var(--hair);border-radius:var(--rp);padding:6px 11px 6px 8px;cursor:pointer;transition:transform .35s var(--pop),background .3s,color .3s}
+.sty:active{transform:scale(.94)}
+.sty .sw{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)}
+.sty[aria-pressed="true"]{background:var(--sel);color:var(--on-sel);border-color:transparent}
+.marks{display:none;gap:5px;margin-bottom:8px}
+.marks i{width:12px;height:12px;display:block}
+body,.word,.phase,h2,.logo,.roll,.btn,.cat,.check,.chip,.phrase{transition:background-color .5s var(--spring),color .5s var(--spring),border-color .5s,border-radius .5s var(--spring)}
+
+/* 2 · Instagram */
+:root[data-style="instagram"]{--bg:#FFFFFF;--glass:#FFFFFF;--glass-strong:#EFEFEF;--edge:#DBDBDB;--hair:#EFEFEF;--ink:#000000;--muted:#737373;--faint:#A8A8A8;
+  --pri:#0095F6;--on-pri:#FFFFFF;--sel:#000000;--on-sel:#FFFFFF;--ring1:#DD2A7B;--shadow:none;--rc:12px;--rt:12px;--rs:12px;--rb:8px;--rp:8px;
+  --igrad:linear-gradient(45deg,#F58529,#FEDA77 0,#F58529 10%,#DD2A7B 45%,#8134AF 75%,#515BD4);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;--round:var(--font);color-scheme:light}
+[data-style="instagram"] .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+[data-style="instagram"] .logo{font-weight:700;letter-spacing:-.02em}
+[data-style="instagram"] .word{font-weight:700;letter-spacing:-.03em}
+[data-style="instagram"] .roll{background:var(--igrad);font-weight:600;font-size:.98rem;padding:14px}
+[data-style="instagram"] .roll:active{transform:scale(.97)}
+[data-style="instagram"] .btn.go{background:#0095F6}
+[data-style="instagram"] .ring .bar{stroke:url(#gIG)}
+[data-style="instagram"] .angle .ic{background:#fff;color:#000;border-radius:50%;box-shadow:0 0 0 2px #fff,0 0 0 4px #DD2A7B;font-weight:700}
+[data-style="instagram"] .angle:nth-child(1) .ic{box-shadow:0 0 0 2px #fff,0 0 0 4px #F58529}
+[data-style="instagram"] .angle:nth-child(3) .ic{box-shadow:0 0 0 2px #fff,0 0 0 4px #8134AF}
+[data-style="instagram"] .history button{border:none;background:#EFEFEF}
+[data-style="instagram"] .check[aria-pressed="true"]{background:#000;color:#fff}
+[data-style="instagram"] .chip{text-transform:none;letter-spacing:0;color:#000;font-weight:600}
+[data-style="instagram"] .chip::before{background:var(--igrad);box-shadow:none}
+[data-style="instagram"] .word.land{animation:igPop .55s var(--pop)}
+@keyframes igPop{0%{transform:scale(.7);opacity:0}55%{transform:scale(1.06)}100%{transform:none;opacity:1}}
+
+/* 3 · Spotify Encore */
+:root[data-style="spotify"]{--bg:#121212;--glass:#181818;--glass-strong:#2A2A2A;--edge:transparent;--hair:rgba(255,255,255,.08);--ink:#FFFFFF;--muted:#B3B3B3;--faint:#6A6A6A;
+  --pri:#1ED760;--on-pri:#000000;--sel:#FFFFFF;--on-sel:#000000;--ring1:#1ED760;--shadow:none;--rc:8px;--rt:8px;--rs:8px;--rb:999px;--rp:999px;
+  --font:"Figtree","Helvetica Neue",system-ui,sans-serif;--round:"Figtree",system-ui,sans-serif;color-scheme:dark}
+[data-style="spotify"] body{background:linear-gradient(180deg,var(--album,#4A3A8C) 0,#121212 380px) no-repeat,#121212}
+[data-style="spotify"] .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+[data-style="spotify"] .card{background:linear-gradient(180deg,color-mix(in srgb,var(--album,#4A3A8C) 72%,#181818),#181818)}
+[data-style="spotify"] .word,[data-style="spotify"] .logo{font-weight:800;letter-spacing:-.04em}
+[data-style="spotify"] .roll{font-weight:700;transition:transform .2s}
+[data-style="spotify"] .roll:hover{transform:scale(1.03);filter:none;background:#3BE477}
+[data-style="spotify"] .cat{background:#2A2A2A;color:#fff}
+[data-style="spotify"] .cats.glass{background:transparent;padding-inline:0}
+[data-style="spotify"] .chip{color:#fff}
+[data-style="spotify"] .angle .ic{border-radius:4px;background:#2A2A2A;color:#1ED760}
+[data-style="spotify"] .angle:hover{background:#2A2A2A}
+[data-style="spotify"] .btn{background:#2A2A2A}
+
+/* 4 · Airbnb */
+:root[data-style="airbnb"]{--bg:#FFFFFF;--glass:#FFFFFF;--glass-strong:#FFFFFF;--edge:#EBEBEB;--hair:#EBEBEB;--ink:#222222;--muted:#6A6A6A;--faint:#B0B0B0;
+  --pri:#FF385C;--on-pri:#FFFFFF;--sel:#222222;--on-sel:#FFFFFF;--ring1:#FF385C;--shadow:0 6px 20px rgba(0,0,0,.08);--rc:24px;--rt:20px;--rs:16px;--rb:12px;--rp:999px;
+  --font:"Nunito Sans","Helvetica Neue",system-ui,sans-serif;--round:"Nunito Sans",system-ui,sans-serif;color-scheme:light}
+[data-style="airbnb"] .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+[data-style="airbnb"] .roll{background:linear-gradient(90deg,#E61E4D,#E31C5F 50%,#D70466);font-weight:700}
+[data-style="airbnb"] .card:hover{box-shadow:0 10px 28px rgba(0,0,0,.14)}
+[data-style="airbnb"] .word{font-weight:800}
+[data-style="airbnb"] .cat{border:1px solid #DDDDDD}
+[data-style="airbnb"] .cats.glass{box-shadow:0 2px 10px rgba(0,0,0,.06)}
+[data-style="airbnb"] .angle .ic{border-radius:50%}
+
+/* 5 · Duolingo */
+:root[data-style="duo"]{--bg:#FFFFFF;--glass:#FFFFFF;--glass-strong:#DDF4FF;--edge:#E5E5E5;--hair:#E5E5E5;--ink:#4B4B4B;--muted:#777777;--faint:#AFAFAF;
+  --pri:#58CC02;--on-pri:#FFFFFF;--sel:#DDF4FF;--on-sel:#1899D6;--ring1:#58CC02;--shadow:none;--rc:16px;--rt:16px;--rs:16px;--rb:16px;--rp:12px;
+  --font:"Nunito","Varela Round",system-ui,sans-serif;--round:"Nunito",system-ui,sans-serif;color-scheme:light}
+[data-style="duo"] .glass{-webkit-backdrop-filter:none;backdrop-filter:none;border-width:2px;border-bottom-width:4px}
+[data-style="duo"] .word,[data-style="duo"] .logo,[data-style="duo"] h2,[data-style="duo"] .phase{font-weight:900;color:#3C3C3C}
+[data-style="duo"] .logo{color:#58CC02}
+[data-style="duo"] .roll{text-transform:uppercase;letter-spacing:.06em;font-weight:900;box-shadow:0 4px 0 #58A700;transition:transform .1s,box-shadow .1s}
+[data-style="duo"] .roll:active{transform:translateY(4px);box-shadow:0 0 0 #58A700}
+[data-style="duo"] .btn,[data-style="duo"] .check,[data-style="duo"] .cat,[data-style="duo"] .history button,[data-style="duo"] .sty{border:2px solid #E5E5E5;border-bottom-width:4px;font-weight:800;background:#fff;color:#4B4B4B}
+[data-style="duo"] .btn:active,[data-style="duo"] .check:active,[data-style="duo"] .cat:active{transform:translateY(2px);border-bottom-width:2px}
+[data-style="duo"] .btn.go,[data-style="duo"] .check[aria-pressed="true"]{border-color:#58A700;color:#fff;background:#58CC02}
+[data-style="duo"] .cat[aria-pressed="true"],[data-style="duo"] .sty[aria-pressed="true"]{border-color:#84D8FF;background:#DDF4FF;color:#1899D6}
+[data-style="duo"] .phrase{background:#FFF4D1;border-color:#FFC800;color:#4B4B4B}
+[data-style="duo"] .angle .ic{background:#1CB0F6;border-radius:10px}
+[data-style="duo"] .ring circle{stroke-width:15}
+[data-style="duo"] .word.land{animation:duoPop .6s var(--pop)}
+@keyframes duoPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:none;opacity:1}}
+
+/* 6 · Linear */
+:root[data-style="linear"]{--bg:#08090A;--glass:rgba(255,255,255,.025);--glass-strong:rgba(255,255,255,.08);--edge:rgba(255,255,255,.08);--hair:rgba(255,255,255,.06);--ink:#F7F8F8;--muted:#8A8F98;--faint:#62666D;
+  --pri:#5E6AD2;--on-pri:#FFFFFF;--sel:rgba(255,255,255,.1);--on-sel:#F7F8F8;--ring1:#5E6AD2;--shadow:0 0 0 1px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.4);--rc:12px;--rt:12px;--rs:10px;--rb:8px;--rp:6px;
+  --font:"Inter","SF Pro Text",system-ui,sans-serif;--round:"Inter",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;color-scheme:dark}
+[data-style="linear"] body{background:radial-gradient(ellipse 80% 340px at 50% -80px,rgba(94,106,210,.22),transparent 70%) no-repeat,#08090A}
+[data-style="linear"] .glass{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015))}
+[data-style="linear"] .word,[data-style="linear"] .logo{font-weight:600;letter-spacing:-.035em;background:linear-gradient(180deg,#F7F8F8 30%,rgba(247,248,248,.55));-webkit-background-clip:text;background-clip:text;color:transparent}
+[data-style="linear"] .roll{font-weight:500;font-size:.95rem;padding:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+[data-style="linear"] .cat,[data-style="linear"] .btn,[data-style="linear"] .check,[data-style="linear"] .sty{font-size:.8rem}
+[data-style="linear"] .angle .ic{background:rgba(255,255,255,.06);color:#8A8F98;font-family:var(--mono)}
+[data-style="linear"] .ring circle{stroke-width:6}
+[data-style="linear"] .chip{color:#8A8F98;letter-spacing:0;text-transform:none}
+
+/* 7 · Notion */
+:root[data-style="notion"]{--bg:#FFFFFF;--glass:#FFFFFF;--glass-strong:#F1F1EF;--edge:transparent;--hair:rgba(55,53,47,.09);--ink:#37352F;--muted:rgba(55,53,47,.65);--faint:rgba(55,53,47,.4);
+  --pri:#37352F;--on-pri:#FFFFFF;--sel:rgba(55,53,47,.08);--on-sel:#37352F;--ring1:#37352F;--shadow:none;--rc:4px;--rt:4px;--rs:4px;--rb:6px;--rp:4px;
+  --font:ui-sans-serif,-apple-system,"Segoe UI","Helvetica Neue",sans-serif;--round:ui-sans-serif,system-ui,sans-serif;color-scheme:light}
+[data-style="notion"] .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+[data-style="notion"] .wrap{max-width:620px}
+[data-style="notion"] .logo{font-size:2.4rem;font-weight:700}
+[data-style="notion"] .logo::before{content:"🎲";display:block;font-size:3.4rem;line-height:1;margin-bottom:10px}
+[data-style="notion"] .card{padding-inline:2px;border-bottom:1px solid var(--hair)}
+[data-style="notion"] .word{font-family:"Lyon-Text",Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:-.01em}
+[data-style="notion"] .phrase{background:#F1F1EF;display:grid;grid-template-columns:auto 1fr;column-gap:10px}
+[data-style="notion"] .phrase::before{content:"💡";grid-row:span 2}
+[data-style="notion"] .angles .angle{padding-inline:2px}
+[data-style="notion"] .angle .ic{background:transparent;color:var(--muted);font-weight:500}
+[data-style="notion"] .angle .ic::after{content:"."}
+[data-style="notion"] .cat:hover,[data-style="notion"] .btn:hover{background:rgba(55,53,47,.08)}
+[data-style="notion"] .btn{background:transparent;border:1px solid var(--hair)}
+[data-style="notion"] .roll{font-weight:500;font-size:.95rem;padding:12px}
+[data-style="notion"] .ring circle{stroke-width:4}
+[data-style="notion"] .chip{text-transform:none;letter-spacing:0;background:#FBECDD;color:#49290E;padding:1px 6px;border-radius:3px}
+[data-style="notion"] .chip::before{display:none}
+
+/* 8 · Figma */
+:root[data-style="figma"]{--bg:#FFFFFF;--glass:#FFFFFF;--glass-strong:#F5F5F5;--edge:#E6E6E6;--hair:#E6E6E6;--ink:#1E1E1E;--muted:#757575;--faint:#B3B3B3;
+  --pri:#0D99FF;--on-pri:#FFFFFF;--sel:#1E1E1E;--on-sel:#FFFFFF;--ring1:#0D99FF;--shadow:0 1px 3px rgba(0,0,0,.08);--rc:13px;--rt:13px;--rs:8px;--rb:8px;--rp:6px;
+  --font:"Inter",system-ui,sans-serif;--round:"Inter",system-ui,sans-serif;color-scheme:light}
+[data-style="figma"] .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+[data-style="figma"] .marks{display:flex}
+[data-style="figma"] .marks i:nth-child(1){background:#F24E1E;border-radius:50% 0 50% 50%}
+[data-style="figma"] .marks i:nth-child(2){background:#FF7262;border-radius:50%}
+[data-style="figma"] .marks i:nth-child(3){background:#A259FF;border-radius:2px}
+[data-style="figma"] .marks i:nth-child(4){background:#1ABCFE;border-radius:50% 50% 0 50%}
+[data-style="figma"] .marks i:nth-child(5){background:#0ACF83;clip-path:polygon(50% 0,100% 100%,0 100%)}
+[data-style="figma"] .logo{font-weight:600;letter-spacing:-.03em}
+[data-style="figma"] .card{position:relative;outline:1px solid transparent;transition:outline-color .2s}
+[data-style="figma"] .card:hover{outline:1.5px solid #0D99FF}
+[data-style="figma"] .card::after{content:"Card";position:absolute;top:-20px;left:0;font:500 .66rem var(--font);color:#0D99FF;opacity:0;transition:opacity .2s}
+[data-style="figma"] .card:hover::after{opacity:1}
+[data-style="figma"] .word{font-weight:700;letter-spacing:-.03em}
+[data-style="figma"] .angle .ic{background:#F5F5F5;color:#1E1E1E;border-radius:4px}
+[data-style="figma"] .angle:nth-child(1) .ic{background:#A259FF;color:#fff}
+[data-style="figma"] .angle:nth-child(2) .ic{background:#1ABCFE;color:#fff}
+[data-style="figma"] .angle:nth-child(3) .ic{background:#0ACF83;color:#fff}
+[data-style="figma"] .phrase{background:#F5F5F5}
+[data-style="figma"] .ring circle{stroke-width:8}
+[data-style="figma"] .chip{text-transform:none;letter-spacing:0}
+
+[data-style="spotify"] .btn.go{background:#1ED760;color:#000;font-weight:700}
+[data-style="notion"] .btn.go{background:#2383E2;border-color:#2383E2;color:#fff;font-weight:500}
+[data-style="notion"] .btn.go:hover{background:#0077D4}
+
+/* Desktop: 10% side margins, two columns */
+.cols,.colL,.colR{display:flex;flex-direction:column;gap:16px;min-width:0}
+@media (min-width:900px){
+  body{padding-inline:10vw}
+  .wrap,[data-style] .wrap{max-width:none}
+  .cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
+  .colR>.sect:first-child{margin-top:0}
+  .word{font-size:clamp(3rem,4.6vw,4.6rem)}
+  .card{padding:30px 32px 32px}
+}
+
+/* Above the fold: compact header, word + timer visible without scrolling */
+header{flex-direction:row!important;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;padding-bottom:0}
+header .eyebrow{display:none}
+.logo{font-size:1.5rem!important;line-height:1.2}
+.stats{margin-top:0!important}
+.marks{flex-basis:100%;margin-bottom:0!important}
+[data-style="notion"] .logo::before{display:inline-block!important;font-size:1.5rem!important;margin:0 8px 0 0!important;vertical-align:-2px}
+.colL,.colR{display:contents}
+.card{padding:20px 22px 22px}
+.word{margin-top:8px}
+.ring{width:92px;height:92px}
+.timer{padding:14px 18px}
+.styles-sect{margin-top:10px}
+@media (min-width:900px){
+  .colL,.colR{display:flex}
+  .colR>.timer{margin-top:0}
+}
+
+[data-style="notion"] .angle .ic{white-space:nowrap;width:auto;height:auto}
+
+/* Alignment pass: one outer edge, 8px rhythm, paired rows on desktop */
+header{padding:0!important}
+.sect .row,.sect>h2,.tip,.empty{padding-inline:0!important}
+.sect{margin-top:0}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+[data-style="notion"] .stats{gap:16px}
+[data-style="notion"] .stats span{padding-inline:0}
+[data-style="notion"] .card,[data-style="notion"] .timer{padding-inline:0}
+[data-style="notion"] .angles .angle{padding-inline:0}
+@media (min-width:900px){
+  .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"card timer" "roll timer" "done done" "ways side";column-gap:32px;row-gap:16px;align-items:stretch}
+  .colL,.colR{display:contents}
+  .card{grid-area:card;padding:32px;justify-content:center}
+  .roll{grid-area:roll}
+  .timer{grid-area:timer;grid-template-columns:auto minmax(0,1fr);gap:32px;padding:32px;align-content:center}
+  .ring{width:144px;height:144px}
+  .ring .t{font-size:1.9rem}
+  .done{grid-area:done}
+  .ways{grid-area:ways;align-self:start;margin-top:16px}
+  .side{grid-area:side;align-self:start;margin-top:16px}
+  .styles-sect{margin-top:32px}
+}
+
+.phrase small{display:none}
+[data-style="notion"] .angle .ic{display:block}
+[data-style="notion"] .cats{padding-inline:0}
+
+.sect .row{min-height:32px;align-items:center}
+.sect .row h2{line-height:32px}
+
+[data-style="notion"] .angle{align-items:baseline}
+
+/* ===== v2: single container, clear hierarchy, light borders ===== */
+:root:not([data-style]){--edge:rgba(0,0,0,.06)}
+.wrap{gap:20px}
+header{position:relative;display:flex;flex-direction:row!important;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;padding:0!important}
+.logo{font-size:1.0625rem!important;font-weight:600!important;line-height:1.3;letter-spacing:-.01em}
+[data-style="notion"] .logo::before{font-size:1.15rem!important;margin-right:6px!important}
+.hright{display:flex;align-items:center;gap:16px}
+.stats{gap:12px!important;margin:0!important;font:500 .75rem var(--font)}
+.stats span{padding:0!important;background:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;color:var(--muted)}
+.gear{width:34px;height:34px;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:transform .35s var(--pop),background .2s}
+.gear:hover{background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.gear:active{transform:scale(.92)}
+.gear[aria-expanded="true"]{background:var(--ink);color:var(--bg)}
+.stylepanel{position:absolute;right:0;top:calc(100% + 10px);z-index:30;width:min(340px,calc(100vw - 32px));background:var(--bg);border:1px solid var(--hair);border-radius:16px;box-shadow:0 16px 48px -12px rgba(0,0,0,.28);padding:14px;display:flex;flex-direction:column;gap:10px;animation:panelIn .35s var(--spring);transform-origin:top right}
+@keyframes panelIn{from{opacity:0;transform:scale(.96) translateY(-4px)}to{opacity:1;transform:none}}
+.plabel{margin:0;font:600 .72rem var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.styles{display:grid!important;grid-template-columns:1fr 1fr;gap:6px!important;overflow:visible!important;padding:0!important;margin:0!important}
+.sty{width:100%;justify-content:flex-start;border:0!important;background:color-mix(in srgb,var(--ink) 5%,transparent)!important;color:var(--ink)!important;padding:9px 12px!important;border-radius:10px!important;font-weight:500!important}
+.sty[aria-pressed="true"]{background:var(--ink)!important;color:var(--bg)!important}
+.cats{padding:0!important;background:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-radius:0!important}
+/* stage */
+.main{display:flex;flex-direction:column;gap:28px;min-width:0}
+.stage,.aside{display:flex;flex-direction:column;gap:16px;min-width:0}
+.aside{gap:24px}
+.card{padding:24px!important;gap:8px}
+[data-style="notion"] .card{padding-inline:0!important}
+.word{font-size:clamp(2.5rem,1.6rem + 3vw,3.5rem)!important;margin:8px 0 0!important}
+.def{font-size:.95rem}
+.tstrip{margin-top:16px;padding-top:16px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:12px}
+.tline{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.clock{display:flex;flex-direction:column;min-width:4.4ch;font:600 1.75rem/1 var(--round);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.clock small{font:500 .66rem var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.ttext{min-width:0}
+.ttext .phase{font:600 .95rem/1.35 var(--font)!important;margin:0;color:var(--ink)!important;text-transform:none!important;letter-spacing:-.005em!important}
+.ttext .phase-sub{margin:2px 0 0;font-size:.82rem;line-height:1.4;color:var(--muted)}
+.track{position:relative;height:6px;border-radius:3px;background:color-mix(in srgb,var(--ring1) 13%,transparent);overflow:hidden}
+.track .fill{position:absolute;inset:0;transform-origin:left center;transform:scaleX(0);background:var(--ring1);border-radius:inherit;transition:transform .25s linear,opacity .3s}
+.track .fill.prep{opacity:.4}
+.track i{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--card-bg,var(--bg))}
+[data-style="instagram"] .track .fill{background:linear-gradient(90deg,#F58529,#DD2A7B 55%,#515BD4)}
+.tctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tctrl .toggle{margin-left:auto}
+/* one primary action at a time */
+.btn,.roll{transition:background .4s var(--spring),color .4s var(--spring),box-shadow .4s,transform .4s var(--pop)!important}
+.wrap[data-step="roll"] .btn.go{background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink);border-color:transparent;box-shadow:none}
+.wrap[data-step="start"] .roll,.wrap[data-step="talking"] .roll{background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink);box-shadow:none;filter:none}
+.wrap[data-step="start"] .btn.go{animation:nudge 1.6s var(--spring) .2s 2}
+@keyframes nudge{0%,100%{transform:none}40%{transform:scale(1.06)}}
+/* type scale: 56/48 word · 15 body · 12 labels */
+.sect h2,.sect .row h2,.done h2{font:600 .75rem/32px var(--font)!important;letter-spacing:.06em!important;text-transform:uppercase!important;color:var(--muted)!important;background:none!important;-webkit-background-clip:border-box!important}
+.sect .row{min-height:32px}
+.link{font-size:.82rem!important}
+/* lists and soft surfaces instead of boxes */
+.angles{border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;overflow:visible!important}
+.angle{padding:12px 0!important;grid-template-columns:24px 1fr!important;gap:12px!important;align-items:baseline!important}
+.angle+.angle::before{left:36px!important}
+.angle .ic{width:24px;height:24px;border-radius:7px;font-size:.72rem;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink);align-self:start}
+.angle p{font-size:.95rem}
+.phrase{border:0!important;box-shadow:none!important;background:color-mix(in srgb,var(--ink) 4%,transparent);border-radius:14px!important;padding:14px 16px!important;font-size:1rem!important;transform:none!important}
+.phrase .tip{margin:6px 0 0!important;font-size:.8rem!important;font-weight:400;color:var(--muted);line-height:1.45}
+.history button{box-shadow:none}
+/* lighter borders per theme */
+[data-style="instagram"]{--edge:#EFEFEF}
+[data-style="figma"]{--edge:#EDEDED}
+[data-style="airbnb"] .card{border-color:transparent;box-shadow:0 2px 6px rgba(0,0,0,.04),0 12px 32px -8px rgba(0,0,0,.12)}
+[data-style="airbnb"] .cat{border-color:#EBEBEB}
+[data-style="duo"] .glass{border-width:2px;border-bottom-width:2px}
+[data-style="duo"] :is(.btn,.check,.cat,.history button){border:0!important;background:#F2F2F2;color:#4B4B4B}
+[data-style="duo"] .cat[aria-pressed="true"]{background:#DDF4FF;color:#1899D6}
+[data-style="duo"] .wrap[data-step="start"] .btn.go,[data-style="duo"] .wrap[data-step="talking"] .btn.go{background:#58CC02;color:#fff}
+[data-style="duo"] .check[aria-pressed="true"]{background:#58CC02;color:#fff}
+[data-style="duo"] .phrase{background:#FFF4D1}
+[data-style="duo"] .wrap[data-step="start"] .roll,[data-style="duo"] .wrap[data-step="talking"] .roll{box-shadow:0 3px 0 #E5E5E5}
+[data-style="spotify"] .phrase,[data-style="linear"] .phrase{background:rgba(255,255,255,.05)}
+[data-style="notion"] .phrase{background:#F1F1EF}
+/* desktop: stage | aside */
+@media (min-width:900px){
+  .main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:48px;align-items:start}
+  .card{padding:32px!important}
+  .ways{margin-top:0}
+}
+@media (max-width:380px){.tctrl .toggle{margin-left:0}}
+
+[data-style="duo"] .angle .ic{color:#fff}
+[data-style="notion"] .angle .ic{font-size:.9rem;width:auto;height:auto;align-self:baseline}
+
+[data-style="notion"] .btn{border:0;background:rgba(55,53,47,.06)}
+
+/* ===== v3: ring timer in its own box, colorful style row on top, themed icons ===== */
+.wrap{gap:16px}
+/* style row */
+.styles{display:flex!important;flex-wrap:nowrap;gap:8px!important;overflow-x:auto!important;padding:2px 0 4px!important;margin:0!important;scrollbar-width:none}
+.sty{width:auto!important;flex:none;gap:8px;border:0!important;border-radius:999px!important;padding:5px 13px 5px 5px!important;font:500 .8rem var(--font)!important;
+  background:color-mix(in srgb,var(--c) 11%,var(--bg))!important;color:var(--ink)!important;transition:background .4s var(--spring),color .4s var(--spring),box-shadow .4s,transform .35s var(--pop)!important}
+.sty .sw{width:22px;height:22px;box-shadow:inset 0 0 0 1px rgba(127,127,127,.18)}
+.sty:hover{background:color-mix(in srgb,var(--c) 18%,var(--bg))!important}
+.sty[aria-pressed="true"]{background:var(--cbg)!important;color:var(--cink)!important;box-shadow:0 6px 16px -6px color-mix(in srgb,var(--c) 75%,transparent)}
+.sty[aria-pressed="true"] .sw{box-shadow:0 0 0 2px color-mix(in srgb,var(--cink) 85%,transparent)}
+/* header with themed badge */
+header{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.badge{width:26px;height:26px;border-radius:8px;background:var(--pri);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:5px;flex:none;transform:rotate(-6deg);transition:background .5s var(--spring)}
+.badge i{width:3.5px;height:3.5px;border-radius:50%;background:var(--on-pri);margin:auto}
+.badge i:nth-child(1){grid-area:1/1}.badge i:nth-child(2){grid-area:1/3}.badge i:nth-child(3){grid-area:2/2}.badge i:nth-child(4){grid-area:3/1}.badge i:nth-child(5){grid-area:3/3}
+[data-style="instagram"] .badge{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4)}
+[data-style="airbnb"] .badge{background:linear-gradient(135deg,#E61E4D,#D70466)}
+[data-style="figma"] .badge{background:conic-gradient(#F24E1E 0 20%,#FF7262 0 40%,#A259FF 0 60%,#1ABCFE 0 80%,#0ACF83 0)}
+[data-style="notion"] .badge{display:none}
+.stats{display:flex;gap:12px!important}
+/* timer: ring + its own light box */
+.timer{display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;gap:20px!important;align-items:center;padding:20px!important;border-radius:var(--rt)!important;
+  border:1px solid color-mix(in srgb,var(--ink) 9%,transparent)!important;box-shadow:none!important}
+[data-style="duo"] .timer{border:2px solid #E5E5E5!important}
+[data-style="spotify"] .timer{border-color:transparent!important}
+[data-style="notion"] .timer{padding-inline:20px!important}
+.ring{width:96px!important;height:96px!important}
+.ring .t{font-size:1.4rem!important}
+.tbtns{gap:8px}
+.tbtns .toggle{margin-left:auto}
+/* themed icons: phrase spark + list numbers tinted */
+.phrase{display:grid!important;grid-template-columns:auto minmax(0,1fr);column-gap:12px;align-items:baseline}
+.picon{grid-row:span 2;color:var(--pri);display:flex;align-self:start;margin-top:3px}
+[data-style="instagram"] .picon{color:#DD2A7B}
+[data-style="duo"] .picon{color:#FFC800}
+[data-style="notion"] .picon{display:none}
+:root:not([data-style]) .angle .ic{background:color-mix(in srgb,#0A84FF 12%,transparent);color:#0A84FF}
+:root:not([data-style]) .picon{color:#FF9F0A}
+:root:not([data-style]) .badge{background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
+[data-style="airbnb"] .angle .ic{background:#FFF0F3;color:#E61E4D}
+[data-style="spotify"] .picon{color:#1ED760}
+[data-style="linear"] .picon{color:#8B93FF}
+[data-style="figma"] .picon{color:#A259FF}
+/* layout */
+.main{display:flex;flex-direction:column;gap:16px}
+.stage,.aside{display:flex;flex-direction:column;gap:16px;min-width:0}
+.ways{margin-top:12px}
+@media (min-width:900px){
+  .main{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"stage timer" "done done" "ways side";column-gap:32px;row-gap:16px;align-items:stretch}
+  .stage{grid-area:stage}
+  .timer{grid-area:timer;padding:32px!important;gap:32px!important;align-content:center}
+  .ring{width:140px!important;height:140px!important}
+  .ring .t{font-size:1.85rem!important}
+  .done{grid-area:done}
+  .ways{grid-area:ways;align-self:start;margin-top:16px}
+  .aside{grid-area:side;align-self:start;margin-top:16px;gap:24px}
+}
+@media (max-width:380px){.timer{grid-template-columns:1fr!important;justify-items:center}.tbtns .toggle{margin-left:0}}
+
+@media (min-width:900px){.ways,.aside{margin-top:0!important}}
+[data-style="notion"] .phrase{border-radius:4px!important}
+[data-style="notion"] .card{padding-top:16px!important}
+
+
+/* v3.1: tighter scale for the style row and the timer */
+.styles{gap:6px!important;padding:0 0 2px!important}
+.sty{font:500 .72rem var(--font)!important;padding:3px 10px 3px 4px!important;gap:6px!important}
+.sty .sw{width:14px!important;height:14px!important}
+.sty[aria-pressed="true"]{box-shadow:0 3px 10px -4px color-mix(in srgb,var(--c) 70%,transparent)}
+.sty[aria-pressed="true"] .sw{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--cink) 85%,transparent)}
+.badge{width:22px;height:22px;border-radius:7px;padding:4px}
+.badge i{width:3px;height:3px}
+.timer{padding:16px 18px!important;gap:16px!important}
+.ring{width:84px!important;height:84px!important}
+.ring .t{font-size:1.2rem!important}
+.ring .t small{font-size:.56rem!important}
+.timer .phase{font:600 .92rem/1.35 var(--font)!important}
+.timer .phase-sub{font-size:.8rem!important}
+@media (min-width:900px){
+  .timer{padding:24px 28px!important;gap:24px!important}
+  .ring{width:112px!important;height:112px!important}
+  .ring .t{font-size:1.5rem!important}
+}
+
+[data-style="notion"] .logo{gap:0}
+
+/* style pills: no tinted base, thin light outline */
+.sty{background:transparent!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 12%,transparent)!important;color:var(--muted)!important}
+.sty:hover{background:transparent!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 24%,transparent)!important;color:var(--ink)!important}
+.sty[aria-pressed="true"]{background:transparent!important;color:var(--ink)!important;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ink) 55%,transparent)!important}
+.sty[aria-pressed="true"] .sw{box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)!important}
+
+/* style pills: 40% thinner outline */
+.sty{box-shadow:inset 0 0 0 .6px color-mix(in srgb,var(--ink) 14%,transparent)!important}
+.sty:hover{box-shadow:inset 0 0 0 .6px color-mix(in srgb,var(--ink) 28%,transparent)!important}
+.sty[aria-pressed="true"]{box-shadow:inset 0 0 0 .9px color-mix(in srgb,var(--ink) 60%,transparent)!important}
+
+/* topic row: 30% smaller */
+.cats{gap:4px!important}
+.cat{font-size:.6rem!important;padding:5px 10px!important;gap:4px!important}
+.cat:not(.all)::before{width:5px!important;height:5px!important}
+
+/* topic row: +15% */
+.cats{gap:5px!important}
+.cat{font-size:.69rem!important;padding:5.75px 11.5px!important;gap:4.6px!important}
+.cat:not(.all)::before{width:5.75px!important;height:5.75px!important}
+
+/* title: +14% */
+.logo{font-size:1.211rem!important}
+[data-style="notion"] .logo::before{font-size:1.31rem!important}
+.badge{width:25px!important;height:25px!important;border-radius:8px!important;padding:4.5px!important}
+.badge i{width:3.4px!important;height:3.4px!important}
+
+/* ring: responsive size, text scales with it */
+.ring{--rs:clamp(100px,28vw,140px);width:var(--rs)!important;height:var(--rs)!important}
+.ring .t{font-size:calc(var(--rs) * .2)!important}
+.ring .t small{font-size:max(.56rem,calc(var(--rs) * .062))!important}
+@media (min-width:900px){
+  .ring{--rs:clamp(124px,13vw,210px)}
+}
+
+/* notes */
+.nlabel{font:600 .75rem var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.note{width:100%;min-height:84px;resize:vertical;font:400 .95rem/1.5 var(--font);color:var(--ink);background:color-mix(in srgb,var(--ink) 4%,transparent);border:.6px solid color-mix(in srgb,var(--ink) 14%,transparent);border-radius:12px;padding:12px 14px;outline:none;transition:border-color .2s,background .2s}
+.note:focus{border-color:color-mix(in srgb,var(--ink) 40%,transparent);background:transparent}
+.note::placeholder{color:var(--faint)}
+.nrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.nhint{font-size:.78rem;color:var(--muted)}
+.nhint.ok{color:var(--ink)}
+.wrap .done .nsave{background:var(--pri)!important;color:var(--on-pri)!important}
+.notes{display:flex;flex-direction:column}
+.nitem{padding:12px 0;border-top:.6px solid var(--hair);display:flex;flex-direction:column;gap:4px;min-width:0}
+.nitem:first-child{border-top:0;padding-top:4px}
+.nmeta{display:flex;justify-content:space-between;gap:8px;font-size:.75rem;color:var(--muted)}
+.nmeta b{color:var(--ink);font-weight:600;font-size:.85rem;cursor:pointer}
+.nitem p{margin:0;font-size:.9rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.nitem .ndone{font-size:.72rem;color:var(--faint)}
+.ndel{background:none;border:0;color:var(--faint);font:inherit;cursor:pointer;padding:0}
+.ndel:hover{color:var(--ink)}
+[data-style="notion"] .note{border-radius:4px}
+
+[data-style="notion"] .done{padding-inline:0!important}
+.ndel{margin-left:6px}
+
+/* notes v2: one quiet line inside the finish panel */
+.nline{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.nprev{margin:0;font-size:.8rem;color:var(--muted);line-height:1.45;overflow-wrap:anywhere}
+.nbox{display:flex;gap:8px;align-items:flex-end}
+.note{flex:1;min-width:0;min-height:0!important;height:38px;resize:none!important;padding:8px 12px!important;font:400 .9rem/1.45 var(--font)!important;border-radius:10px!important;overflow:hidden}
+.wrap .done .nsave{flex:none;height:38px;padding:0 14px!important;background:color-mix(in srgb,var(--ink) 7%,transparent)!important;color:var(--ink)!important;border:0!important}
+.nhint{font-size:.75rem;color:var(--muted);min-height:0}
+.nhint:empty{display:none}
+[data-style="notion"] .note{border-radius:4px!important}
+
+/* custom tags + history */
+.check{position:relative}
+.check .tx{margin-left:6px;opacity:.45;font-weight:400}
+.check .tx:hover{opacity:1}
+.tadd input{font:500 .85rem var(--font);width:7.5em;padding:6px 12px;border-radius:var(--rp);border:.6px dashed color-mix(in srgb,var(--ink) 28%,transparent);background:transparent;color:var(--ink);outline:none;transition:width .25s var(--spring),border-color .2s}
+.tadd input:focus{width:11em;border-style:solid;border-color:color-mix(in srgb,var(--ink) 45%,transparent)}
+.tadd input::placeholder{color:var(--muted)}
+.sessions{display:flex;flex-direction:column}
+.sessions:empty{display:none}
+.sitem{padding:10px 0;border-top:.6px solid var(--hair);display:flex;flex-direction:column;gap:4px;min-width:0}
+.sitem:first-child{border-top:0;padding-top:2px}
+.smeta{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.75rem;color:var(--muted)}
+.sword{background:none;border:0;padding:0;font:600 .9rem var(--font);color:var(--ink);cursor:pointer;text-align:left}
+.sword:hover{text-decoration:underline;text-underline-offset:3px}
+.stags{display:flex;flex-wrap:wrap;gap:4px}
+.stags span{font-size:.7rem;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--muted)}
+.sitem p{margin:0;font-size:.86rem;line-height:1.45;color:var(--ink);overflow-wrap:anywhere;white-space:pre-wrap}
+.sessions+.history{margin-top:8px}
+
+/* selected tags always read as selected */
+.check[aria-pressed="true"]{background:var(--pri)!important;color:var(--on-pri)!important}
+[data-style="spotify"] .check[aria-pressed="true"]{background:#1ED760!important;color:#000!important;font-weight:700}
+[data-style="spotify"] .check{background:#2A2A2A!important;color:#fff}
+.check[aria-pressed="true"] .tx{opacity:.7}
+
+/* spotify: clear selected state for topic chips and self-check tags */
+[data-style="spotify"] .cat{background:#2A2A2A!important;color:#FFFFFF!important}
+[data-style="spotify"] .cat:hover{background:#333333!important}
+[data-style="spotify"] .cat[aria-pressed="true"]{background:#FFFFFF!important;color:#000000!important}
+[data-style="spotify"] .cat[aria-pressed="true"]::before{background:#000000!important;opacity:.6}
+[data-style="spotify"] .check{background:#2A2A2A;color:#FFFFFF}
+[data-style="spotify"] .check[aria-pressed="true"]{background:#1ED760!important;color:#000000!important}
+</style>
+</head>
+<body>
+
+
+<div class="field" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<canvas id="confetti"></canvas>
+<div class="wrap" data-step="roll">
+  <div class="styles" id="styles" role="group" aria-label="Design style"></div>
+
+  <header>
+    <div class="marks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <h1 class="logo"><span class="badge" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>Freestyle Dice</h1>
+    <div class="stats"><span><b id="sTalks">0</b> talks</span><span><b id="sSeen">0</b> / <span id="sTotal">0</span> words</span></div>
+  </header>
+
+  <div class="cats" id="cats" role="group" aria-label="Topic filter"></div>
+
+  <main class="main">
+    <div class="stage">
+      <article class="card glass" id="card">
+        <div class="top"><span class="chip" id="chip">Big Ideas</span><span class="num" id="num">#0001</span></div>
+        <p class="word" id="word" aria-live="polite">Time</p>
+        <p class="def" id="def">The ongoing sequence in which events happen, from past to future</p>
+      </article>
+      <button class="roll" id="roll" type="button"><span class="die" id="die"></span><span id="rollLabel">Roll a word</span></button>
+    </div>
+
+    <section class="timer glass" aria-label="One-minute timer">
+      <div class="ring">
+        <svg viewBox="0 0 120 120"><defs><linearGradient id="gTalk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D55"/><stop offset="1" stop-color="#FF9F0A"/></linearGradient><linearGradient id="gIG" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#F58529"/><stop offset=".5" stop-color="#DD2A7B"/><stop offset="1" stop-color="#515BD4"/></linearGradient><linearGradient id="gPrep" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5E5CE6"/><stop offset="1" stop-color="#64D2FF"/></linearGradient></defs><circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="13"/><circle class="bar" id="bar" cx="60" cy="60" r="52" fill="none" stroke-width="13" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="0"/></svg>
+        <div class="t"><div><span id="clock">1:00</span><small id="clockLbl">ready</small></div></div>
+      </div>
+      <div class="tside">
+        <p class="phase" id="phase">Hit start and talk for 60 seconds</p>
+        <p class="phase-sub" id="phaseSub">The ring walks you through hook, example, twist, and landing.</p>
+        <div class="steps" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div class="tbtns">
+          <button class="btn go" id="start" type="button">Start</button>
+          <button class="btn" id="reset" type="button">Reset</button>
+          <label class="toggle"><input type="checkbox" id="prep" checked> 15s to think</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="done glass" id="done" hidden>
+      <h2>Time! How did that go?</h2>
+      <p class="tip">Tap what you pulled off. Be honest, nobody's watching.</p>
+      <div class="checks" id="checks"></div>
+      <div class="nline">
+        <p class="nprev" id="nprev" hidden></p>
+        <div class="nbox"><textarea id="note" class="note" rows="1" maxlength="600" placeholder="Add a quick note for next time…" aria-label="Note for next time"></textarea><button class="btn nsave" id="noteSave" type="button">Save to history</button></div>
+        <span class="nhint" id="nhint" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="sect ways">
+      <div class="row"><h2>Ways in</h2><button class="link" id="shuffle" type="button">New angles</button></div>
+      <div class="angles" id="angles"></div>
+    </section>
+
+    <div class="aside">
+      <section class="sect">
+        <div class="row"><h2>Phrase to try</h2></div>
+        <div class="phrase" id="phrase"><span class="picon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg></span><span id="phraseText">Here's what surprised me…</span><p class="tip" id="tip"></p></div>
+      </section>
+      <section class="sect" id="historySect" hidden>
+        <div class="row"><h2>History</h2><button class="link" id="sessAll" type="button" hidden>Show all</button></div>
+        <div class="sessions" id="sessions"></div>
+        <div class="history" id="history"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>Press <kbd>R</kbd> to roll, <kbd>Space</kbd> to start or pause.</footer>
+</div>
+
+<script>
+const D={"cats":["abstract","mind","science","tech","society","ethics","economy","work","earth","culture"],"words":[["Time","The ongoing sequence in which events happen, from past to future",0],["Memory","How the mind stores and recalls past experience",0],["Silence","The absence of sound, or of speaking",0],["Freedom","The power to act or choose without constraint",0],["Truth","What is actually so, regardless of what anyone believes",0],["Beauty","A quality that gives deep pleasure to the senses or mind",0],["Change","The process of becoming different",0],["Chaos","Complete disorder where outcomes are hard to predict",0],["Order","Arrangement according to a pattern or rule",0],["Infinity","Something without any limit or end",0],["Nothing","The absence of anything at all",0],["Home","A place, or a feeling, of belonging",0],["Identity","The qualities that make someone who they are",0],["Luck","Success or failure that comes by chance",0],["Fate","The idea that events are decided in advance",0],["Choice","Picking between options",0],["Balance","A state where opposing forces are equal",0],["Patience","The ability to wait without getting upset",0],["Courage","Acting despite fear",0],["Fear","An emotion triggered by perceived danger",0],["Hope","Expecting or wanting something good to happen",0],["Loneliness","Sadness from feeling disconnected from others",0],["Solitude","Being alone by choice, often peacefully",0],["Curiosity","A strong desire to know or learn",0],["Boredom","Restless dissatisfaction from lack of interest",0],["Nostalgia","A sentimental longing for the past",0],["Progress","Forward movement toward a better state",0],["Tradition","Customs passed down between generations",0],["Legacy","What you leave behind for others",0],["Simplicity","The quality of being easy and uncomplicated",0],["Complexity","Many interconnected parts that are hard to untangle",0],["Perfection","Being completely free of flaws",0],["Failure","Not achieving an intended goal",0],["Success","Achieving a goal; what counts depends on who defines it",0],["Ambition","A strong drive to achieve something",0],["Power","The ability to influence people or events",0],["Trust","Belief that someone or something is reliable",0],["Betrayal","Breaking someone's trust",0],["Forgiveness","Letting go of resentment toward someone who wronged you",0],["Gratitude","Thankfulness for what you have",0],["Kindness","Being friendly, generous, and considerate",0],["Respect","Regard for someone's worth or rights",0],["Pride","Satisfaction in achievement, or an inflated sense of self",0],["Shame","A painful feeling about yourself after a failure or wrong",0],["Humor","The quality of being funny, and our ability to see it",0],["Play","Activity done for enjoyment rather than purpose",0],["Ritual","A repeated sequence of actions that carries meaning",0],["Belief","Accepting something as true",0],["Doubt","Uncertainty about whether something is true",0],["Wisdom","Good judgment built from knowledge and experience",0],["Ignorance","Lack of knowledge",0],["Paradox","A statement that contradicts itself yet may be true",0],["Irony","When the outcome is the opposite of what's expected",0],["Symmetry","Balanced proportions on either side",0],["Pattern","A repeated arrangement or regularity",0],["Distance","The space between things or people",0],["Speed","How fast something moves or happens",0],["Waiting","Staying in place until something happens",0],["Beginnings","The point where something starts",0],["Endings","The point where something stops",0],["Growth","The process of increasing or developing",0],["Decay","Gradual decline or breaking down",0],["Mystery","Something unknown or unexplained",0],["Wonder","Amazement at something beautiful or unfamiliar",0],["Comfort","A state of ease and freedom from pain",0],["Risk","Exposure to the chance of loss or harm",0],["Safety","Being protected from danger",0],["Adventure","An unusual and exciting experience",0],["Habit","A behavior repeated until it becomes automatic",0],["Attention","Focusing the mind on something",0],["Imagination","Forming ideas of things not present",0],["Dreams","Images during sleep, or hopes for the future",0],["Reality","The world as it actually exists",0],["Illusion","Something that deceives the senses or mind",0],["Purpose","The reason something exists or is done",0],["Meaning","What makes something significant",0],["Happiness","A state of wellbeing and contentment",0],["Suffering","Experiencing pain or distress",0],["Love","Deep affection and care for someone or something",0],["Friendship","A bond of mutual affection between people",0],["Family","A group bound by blood, law, or chosen ties",0],["Childhood","The period of being a child",0],["Aging","The process of growing older",0],["Death","The end of life",0],["Youth","The period of being young",0],["Maturity","Being fully developed, emotionally or physically",0],["Space","The boundless expanse, or room to move and think",0],["Borders","Lines that divide places or groups",0],["Mirrors","Surfaces that reflect, and things that show us ourselves",0],["Maps","Drawings that simplify a territory so we can navigate it",0],["Keys","Things that unlock, literally or figuratively",0],["Bridges","Structures that connect, literally or socially",0],["Walls","Structures that separate or protect",0],["Doors","Openings that lead from one space to another",0],["Light","Visible energy, and a symbol of knowledge",0],["Darkness","The absence of light, and a symbol of the unknown",0],["Noise","Unwanted sound, or meaningless information",0],["Rhythm","A strong, regular repeated pattern",0],["Enough","As much as is needed; knowing when to stop",0],["Excess","More than is necessary",0],["Scarcity","Not having enough of something",0],["Abundance","Having plenty",0],["Empathy","Understanding and sharing another person's feelings",1],["Motivation","The reasons behind our actions",1],["Procrastination","Delaying tasks even though you know it may hurt you",1],["Willpower","Controlling impulses to reach long-term goals",1],["Resilience","Recovering quickly from difficulty",1],["Anxiety","Worry or unease about uncertain outcomes",1],["Stress","The body's response to pressure or demands",1],["Burnout","Exhaustion from prolonged stress",1],["Confidence","Trust in your own abilities",1],["Impostor Syndrome","Feeling like a fraud despite evidence of competence",1],["Perfectionism","Demanding flawlessness of yourself",1],["Self-esteem","How much you value yourself",1],["Introversion","Gaining energy from time alone",1],["Extroversion","Gaining energy from being with others",1],["Intuition","Knowing something without conscious reasoning",1],["Cognitive Bias","A systematic error in how we think",1],["Confirmation Bias","Favoring information that supports what you already believe",1],["Groupthink","Conformity in a group that overrides good judgment",1],["Peer Pressure","Influence from peers to fit in",1],["Conformity","Adjusting your behavior to match a group",1],["Dopamine","A brain chemical linked to reward and anticipation",1],["Flow","Being fully absorbed in a challenging task",1],["Mindfulness","Paying attention to the present moment without judgment",1],["Daydreaming","Letting the mind wander away from the present",1],["Sleep","A natural recurring state of rest for body and mind",1],["Emotional Intelligence","Recognizing and managing emotions in yourself and others",1],["Grit","Passion and perseverance for long-term goals",1],["Growth Mindset","Believing abilities can be developed through effort",1],["Fixed Mindset","Believing abilities are innate and can't change",1],["Delayed Gratification","Resisting a reward now for a better one later",1],["Overthinking","Thinking about something too much, unproductively",1],["Decision Fatigue","Making worse decisions after making many choices",1],["Choice Overload","Struggling to choose when there are too many options",1],["FOMO","Fear of missing out on what others are experiencing",1],["Jealousy","Fear of losing something you have to someone else",1],["Envy","Wanting what someone else has",1],["Regret","Sadness about something you did or didn't do",1],["Guilt","Feeling responsible for a wrong",1],["Anger","A strong feeling of displeasure or hostility",1],["Grief","Deep sorrow, especially after a loss",1],["Joy","Intense happiness",1],["Awe","Wonder mixed with a sense of vastness",1],["Optimism","Expecting good outcomes",1],["Pessimism","Expecting bad outcomes",1],["Cynicism","Distrust of other people's motives",1],["Vulnerability","Openness to emotional risk",1],["Authenticity","Being true to who you are",1],["Self-awareness","Clear understanding of your own character and feelings",1],["Ego","Your sense of self-importance",1],["Trauma","Lasting harm from a distressing event",1],["Therapy","Treatment to help heal mental or emotional problems",1],["Attachment","Emotional bonds with others, often shaped in childhood",1],["Personality","A person's typical patterns of thinking and behaving",1],["Nature vs Nurture","The debate over whether genes or environment shape us",1],["Learning","Gaining knowledge or skill",1],["Forgetting","Losing information from memory",1],["False Memory","Recalling something that didn't happen the way you remember",1],["Creativity","Producing ideas that are original and useful",1],["Focus","Concentrating attention on one thing",1],["Multitasking","Doing several tasks at once, usually less effectively",1],["Laziness","Unwillingness to spend energy",1],["Rest","Stopping work to recover",1],["Self-control","Regulating your own behavior and impulses",1],["Addiction","Compulsive behavior that continues despite harm",1],["Comparison","Measuring yourself against others",1],["Validation","Having your feelings or worth acknowledged",1],["Belonging","Feeling accepted as part of a group",1],["Rejection","Being dismissed or excluded",1],["Shyness","Nervousness around other people",1],["Charisma","Compelling charm that draws people in",1],["Persuasion","Convincing someone to believe or do something",1],["Manipulation","Influencing others in an unfair or deceptive way",1],["Gaslighting","Making someone doubt their own sense of reality",1],["Boundaries","Limits you set to protect your wellbeing",1],["Loss Aversion","Feeling losses more strongly than equal gains",1],["Sunk Cost Fallacy","Continuing something because of what you've already invested",1],["Dunning-Kruger Effect","People with low skill overestimating their ability",1],["Halo Effect","One good trait making us assume other good traits",1],["Anchoring","Relying too heavily on the first number or fact you hear",1],["Cognitive Dissonance","Discomfort from holding two conflicting beliefs",1],["Hindsight Bias","Believing after the fact that you knew it all along",1],["Spotlight Effect","Overestimating how much other people notice you",1],["Negativity Bias","Giving more weight to bad experiences than good ones",1],["Bystander Effect","Being less likely to help when other people are around",1],["Social Proof","Copying others to decide what's right",1],["Mental Health","Emotional, psychological, and social wellbeing",1],["Hedonic Treadmill","Getting used to good things so happiness returns to baseline",1],["Inner Voice","The running monologue inside your head",1],["Self-talk","What you say to yourself",1],["Metacognition","Thinking about your own thinking",1],["Neuroplasticity","The brain's ability to rewire itself",1],["Emotions","Feelings that shape our reactions and decisions",1],["Stubbornness","Refusing to change your position",1],["Open-mindedness","Willingness to consider new ideas",1],["Humility","A modest view of your own importance",1],["Narcissism","Excessive self-focus and need for admiration",1],["Self-compassion","Treating yourself with the care you'd give a friend",1],["Habit Loops","The cue, routine, and reward cycle behind habits",1],["Mood","A temporary state of mind or feeling",1],["Instant Gratification","Wanting pleasure or reward right away",1],["Overconfidence","Being more sure of yourself than the facts justify",1],["Gravity","The force that pulls objects with mass toward each other",2],["Evolution","Change in living species over many generations",2],["Natural Selection","Better-adapted organisms surviving and reproducing more",2],["DNA","The molecule that carries the genetic instructions for life",2],["Genes","Units of heredity passed from parents to children",2],["CRISPR","A tool for precisely editing DNA",2],["Cloning","Creating a genetically identical copy of an organism",2],["Black Holes","Regions where gravity is so strong nothing can escape",2],["The Big Bang","The theory that the universe expanded from a hot, dense state",2],["Dark Matter","Invisible matter we detect only through its gravity",2],["Entropy","The tendency of systems to move toward disorder",2],["Relativity","Einstein's theory that space and time are linked",2],["Quantum Physics","The science of matter and energy at the tiniest scales",2],["Uncertainty Principle","You can't know a particle's exact position and speed at once",2],["Atoms","The basic building blocks of matter",2],["Energy","The capacity to do work",2],["Speed of Light","The cosmic speed limit, about 300,000 km per second",2],["Time Dilation","Time passing at different rates depending on speed or gravity",2],["Photosynthesis","How plants turn sunlight, water, and air into food",2],["Microbiome","The trillions of microbes living in and on your body",2],["Viruses","Tiny agents that can only copy themselves inside living cells",2],["Vaccines","Preparations that train the immune system to fight a disease",2],["Antibiotics","Medicines that kill or stop bacteria",2],["Antibiotic Resistance","Bacteria evolving to survive the drugs meant to kill them",2],["Immunity","The body's ability to resist infection",2],["Pandemics","Diseases spreading across many countries at once",2],["The Brain","The organ that runs thought, memory, and behavior",2],["Consciousness","Awareness of yourself and your surroundings",2],["Neurons","Cells that send signals through the nervous system",2],["Hormones","Chemical messengers in the body",2],["Metabolism","The chemical processes that keep you alive",2],["Extinction","The end of a species",2],["Biodiversity","The variety of life in a place",2],["Ecosystems","Communities of living things and their environment",2],["Food Chains","Who eats whom in nature",2],["Mars","The fourth planet, and humanity's next big target",2],["Exoplanets","Planets orbiting stars other than our sun",2],["Space Exploration","Discovering space through crewed and robotic missions",2],["Alien Life","Possible life beyond Earth",2],["The Moon","Earth's only natural satellite",2],["Stars","Huge balls of hot gas powered by fusion",2],["Telescopes","Instruments that make distant objects visible",2],["Scientific Method","Testing ideas through observation and experiment",2],["Hypothesis","A proposed explanation that can be tested",2],["Experiments","Tests designed to discover or prove something",2],["Peer Review","Experts checking research before it's published",2],["Replication Crisis","Many studies failing to give the same result when repeated",2],["Correlation vs Causation","Two things moving together doesn't mean one causes the other",2],["Probability","How likely something is to happen",2],["Statistics","The science of collecting and interpreting data",2],["Mathematics","The study of numbers, shapes, and patterns",2],["Zero","The number for nothing, and one of history's great inventions",2],["Prime Numbers","Numbers divisible only by 1 and themselves",2],["Fibonacci Sequence","A series where each number is the sum of the two before",2],["Fractals","Patterns that repeat at every scale",2],["Chaos Theory","The study of how small changes create huge differences",2],["Butterfly Effect","A tiny cause producing a big effect far away",2],["Nuclear Energy","Power released by splitting atoms",2],["Nuclear Fusion","Joining atoms to release energy, the way the sun does",2],["Electricity","Energy carried by moving charged particles",2],["Magnetism","A force created by moving electric charges",2],["Chemistry","The study of substances and how they react",2],["Periodic Table","The chart that organizes every chemical element",2],["Water","The compound essential to all known life",2],["Carbon","The element at the basis of all known life",2],["Oxygen","The gas we breathe to stay alive",2],["Volcanoes","Openings where molten rock reaches the surface",2],["Earthquakes","Sudden ground shaking caused by moving plates",2],["Plate Tectonics","Earth's crust moving in giant slow pieces",2],["Fossils","Preserved remains of ancient life",2],["Dinosaurs","Ancient reptiles that ruled Earth for over 150 million years",2],["Human Evolution","How modern humans developed from earlier species",2],["Longevity","Living a long life, and the science of extending it",2],["Nutrition","How food fuels and affects the body",2],["Placebo Effect","Improvement caused by believing in a treatment",2],["Genetic Engineering","Directly changing an organism's genes",2],["GMOs","Genetically modified organisms, often crops",2],["Stem Cells","Cells that can turn into many other cell types",2],["Organ Transplants","Replacing a failing organ with a donor's",2],["Pain","The body's warning signal of harm",2],["Senses","The ways the body perceives the world",2],["Color","How we perceive different wavelengths of light",2],["Sound","Vibrations traveling through air or other materials",2],["Temperature","How hot or cold something is",2],["Absolute Zero","The lowest temperature possible, minus 273.15 degrees Celsius",2],["Measurement","Assigning numbers to quantities",2],["Scale","Relative size, from atoms to galaxies",2],["Simulation Theory","The idea that our reality could be a computer simulation",2],["Multiverse","The idea that many universes exist beyond our own",2],["Time Travel","Moving between points in time, in physics and fiction",2],["Wormholes","Hypothetical shortcuts through space-time",2],["Discovery","Finding something new",2],["Invention","Creating something that didn't exist before",2],["Accidental Discoveries","Breakthroughs found by chance, like penicillin",2],["Scientific Models","Simplified versions of reality that help us understand it",2],["Clocks","Devices that measure time, from sundials to atomic clocks",2],["Sleep Science","The study of why and how we sleep",2],["Gravity Waves","Ripples in space-time from massive cosmic events",2],["Asteroids","Rocky objects orbiting the sun, some of them dangerous",2],["Comets","Icy bodies that grow glowing tails near the sun",2],["Bacteria","Single-celled organisms, both helpful and harmful",2],["Cells","The smallest units of life",2],["Blood","The fluid that carries oxygen around the body",2],["The Heart","The muscle that pumps blood through the body",2],["Artificial Intelligence","Machines doing tasks that normally need human intelligence",3],["Algorithms","Step-by-step rules a computer follows",3],["Social Media","Online platforms for sharing and connecting",3],["Smartphones","Pocket computers that changed daily life",3],["The Internet","The global network connecting computers",3],["Privacy","Control over your personal information",3],["Surveillance","Close monitoring of people's behavior",3],["Data","Facts and figures collected for analysis",3],["Big Data","Huge datasets that reveal hidden patterns",3],["Cybersecurity","Protecting systems from digital attacks",3],["Hacking","Getting into systems without permission",3],["Passwords","Secret strings that protect accounts",3],["Automation","Machines doing tasks humans used to do",3],["Robots","Machines that carry out actions on their own",3],["Self-driving Cars","Vehicles that drive without a human in control",3],["Virtual Reality","Computer-made worlds you can step into",3],["Augmented Reality","Digital layers placed on top of the real world",3],["The Metaverse","Shared virtual worlds for living, playing, and working",3],["Video Games","Interactive digital entertainment",3],["Streaming","Watching or listening online instead of downloading or owning",3],["Screen Time","Time spent looking at screens",3],["Digital Detox","Taking a deliberate break from devices",3],["Notifications","Alerts that pull your attention back to a device",3],["Attention Economy","Companies competing for your attention as a resource",3],["Clickbait","Content designed mainly to get clicks",3],["Misinformation","False information spread, whether or not on purpose",3],["Deepfakes","AI-generated fake video or audio of real people",3],["Echo Chambers","Spaces where you only hear views like your own",3],["Filter Bubbles","Algorithms showing you only what you already like",3],["Influencers","People who shape opinions and buying online",3],["Cancel Culture","Withdrawing support from someone after a controversy",3],["Memes","Ideas or jokes that spread and mutate online",3],["Going Viral","Content spreading rapidly from person to person",3],["Open Source","Software whose code anyone can use and change",3],["Blockchain","A shared, tamper-resistant digital record",3],["Cryptocurrency","Digital money secured by cryptography",3],["The Cloud","Storing and running things on remote servers",3],["Smart Homes","Houses with connected, automated devices",3],["Wearables","Tech worn on the body, like smartwatches",3],["Biometrics","Identifying people by their body features",3],["Facial Recognition","Software that identifies people from their faces",3],["Drones","Flying vehicles with no pilot on board",3],["3D Printing","Building objects layer by layer from a digital design",3],["Quantum Computing","Computers that use quantum states to solve problems",3],["Chatbots","Programs that hold conversations with people",3],["Machine Learning","Computers learning patterns from data",3],["Digital Footprint","The trail of data you leave online",3],["Online Anonymity","Being unidentifiable online",3],["Trolling","Deliberately provoking people online",3],["Cyberbullying","Bullying through digital platforms",3],["Digital Literacy","Skill in finding and judging information online",3],["Coding","Writing instructions for computers",3],["User Experience","How people feel when they use a product",3],["Design Thinking","Solving problems by starting from people's needs",3],["Innovation","Introducing new ideas or methods",3],["Disruption","Innovation that overturns an existing industry",3],["Obsolescence","Becoming outdated",3],["Planned Obsolescence","Designing products to wear out early",3],["Right to Repair","Letting owners fix their own devices",3],["E-waste","Discarded electronics",3],["Infinite Scroll","Endless feeds with no natural stopping point",3],["Dark Patterns","Designs that trick users into choices they didn't intend",3],["Personalization","Tailoring content to each user",3],["Recommendation Engines","Systems that suggest what to watch, read, or buy",3],["Search Engines","Tools for finding information online",3],["Wikipedia","A free encyclopedia written by volunteers",3],["Email","Electronic messages, the backbone of modern work",3],["Remote Work","Working away from an office",3],["Video Calls","Face-to-face conversations over the internet",3],["Emojis","Small icons that add emotion to text",3],["Digital Identity","Who you are online",3],["Avatars","Digital representations of a person",3],["Encryption","Scrambling data so only the intended reader can see it",3],["Net Neutrality","Treating all internet traffic equally",3],["Digital Divide","The gap between people with and without tech access",3],["Big Tech","A few huge technology companies with outsized influence",3],["Startups","Young companies aiming to grow fast",3],["Moore's Law","The trend of computing power doubling about every two years",3],["The Singularity","A hypothetical point when AI surpasses human intelligence",3],["AI Ethics","Moral questions about how AI is built and used",3],["Job Automation","Machines and software replacing human jobs",3],["Electric Vehicles","Cars powered by batteries instead of fuel",3],["Space Tourism","Paying to travel to space for fun",3],["Brain-Computer Interfaces","Connecting the brain directly to machines",3],["Digital Afterlife","What happens to your data and accounts after you die",3],["Online Dating","Finding partners through apps and websites",3],["E-commerce","Buying and selling online",3],["Cashless Society","A world without physical money",3],["Information Overload","More information than we can process",3],["Tech for Good","Using technology to solve social problems",3],["Hype Cycle","The rise of excitement and fall into disappointment around new tech",3],["Software Bugs","Errors in code that make programs misbehave",3],["Interfaces","Where a person meets a machine",3],["Batteries","Devices that store energy for later",3],["Satellites","Objects orbiting Earth for communication and observation",3],["GPS","The satellite system that tells you where you are",3],["Generative AI","AI that creates text, images, music, or video",3],["Digital Minimalism","Using technology only in ways that clearly add value",3],["Online Reviews","Strangers' ratings that shape what we buy",3],["Tech Addiction","Compulsive use of devices and apps",3],["Democracy","Government by the people, usually through voting",4],["Voting","Expressing your choice in an election",4],["Equality","Same status, rights, and opportunities for all",4],["Equity","Fairness by giving people what they need to succeed",4],["Diversity","Including people of different backgrounds",4],["Inclusion","Making everyone feel welcome and valued",4],["Discrimination","Unfair treatment based on group identity",4],["Racism","Prejudice or discrimination based on race",4],["Sexism","Prejudice based on sex or gender",4],["Ageism","Prejudice based on age",4],["Stereotypes","Oversimplified ideas about a group",4],["Prejudice","Opinions formed without reason or knowledge",4],["Privilege","Advantages available to some people but not others",4],["Gender Roles","Expectations society places on people based on gender",4],["Feminism","Advocacy for women's equal rights",4],["Human Rights","Basic rights every person is entitled to",4],["Immigration","Moving to live in another country",4],["Refugees","People forced to flee their country",4],["Globalization","Countries becoming more connected through trade and culture",4],["Nationalism","Strong identification with your nation, sometimes above others",4],["Patriotism","Love and support for your country",4],["Citizenship","Being a legal member of a country",4],["Education","Teaching and learning, formal or not",4],["Homework","School work done at home",4],["Standardized Testing","Exams given the same way to everyone",4],["University","Higher education, and whether it's worth it",4],["Student Debt","Money borrowed to pay for education",4],["Public Health","Protecting the health of whole populations",4],["Healthcare","Services that maintain or restore health",4],["Poverty","Not having enough money for basic needs",4],["Homelessness","Not having a stable place to live",4],["Inequality","Uneven distribution of wealth or opportunity",4],["Social Mobility","Moving between social classes",4],["Social Class","Groups in society based on wealth and status",4],["Urbanization","People moving from the countryside to cities",4],["Gentrification","Wealthier people moving into and changing a neighborhood",4],["Community","People connected by place or shared interest",4],["Neighbors","The people who live near you",4],["Volunteering","Working for free to help others",4],["Charity","Giving to those in need",4],["Activism","Campaigning to bring about change",4],["Protest","Publicly showing objection",4],["Censorship","Suppressing speech or information",4],["Free Speech","The right to express your opinions",4],["The Media","The channels that deliver news and information",4],["Journalism","Gathering and reporting news",4],["Fake News","False stories presented as real news",4],["Propaganda","Biased information used to promote a cause",4],["Polarization","A society splitting into opposing extremes",4],["Populism","Politics that claims to speak for ordinary people against elites",4],["Laws","Rules a society agrees to enforce",4],["Justice","Fair treatment and right outcomes",4],["Crime","An act punishable by law",4],["Punishment","A penalty for wrongdoing",4],["Prisons","Places where people are held as punishment",4],["Rehabilitation","Helping offenders return to society",4],["Policing","How law is enforced, and by whom",4],["Death Penalty","Execution as a legal punishment",4],["War","Armed conflict between groups",4],["Peace","Freedom from conflict",4],["Diplomacy","Managing relations between countries",4],["Religion","Beliefs and practices about the sacred",4],["Secularism","Keeping religion separate from government",4],["Generations","Groups of people born around the same time",4],["Generation Z","People born roughly between 1997 and 2012",4],["Millennials","People born roughly between 1981 and 1996",4],["Parenting","Raising children",4],["Marriage","A formal union between partners",4],["Divorce","Legally ending a marriage",4],["Single Life","Living without a partner",4],["Aging Population","A rising share of older people in society",4],["Birth Rates","How many babies are born, and why it's falling",4],["Retirement","Stopping work later in life",4],["Loneliness Epidemic","Widespread social isolation in modern life",4],["Social Norms","Unwritten rules of behavior",4],["Etiquette","Customs of polite behavior",4],["Taboos","Things a society forbids or avoids talking about",4],["Language","A system of communication through words",4],["Multilingualism","Speaking several languages",4],["Accents","Different ways of pronouncing a language",4],["Slang","Informal words used by particular groups",4],["Public Transport","Shared transport like buses and trains",4],["Car Culture","Cities and lifestyles built around cars",4],["Housing","Places to live and the market around them",4],["Food Waste","Edible food that gets thrown away",4],["Vegetarianism","Not eating meat",4],["Fast Food","Quick, cheap, standardized meals",4],["Sports","Competitive physical activities",4],["The Olympics","The global multi-sport competition",4],["Celebrity Culture","Society's fascination with famous people",4],["Fashion","Trends in clothing and style",4],["Beauty Standards","A society's ideals of attractiveness",4],["Body Image","How you see and feel about your body",4],["Social Contract","The unspoken deal between citizens and the state",4],["Bureaucracy","Complex systems of rules and officials",4],["Taxes","Money paid to fund government services",4],["Welfare","Government support for people in need",4],["Universal Basic Income","Regular cash for every citizen, no strings attached",4],["Pets","Animals kept for companionship",4],["Uniforms in Schools","Requiring students to wear the same clothes",4],["Voting Age","The age at which people can vote",4],["Morality","Principles of right and wrong",5],["Ethics","The study of how we should act",5],["Honesty","Telling the truth",5],["Lying","Saying what you know is false",5],["White Lies","Small lies told to be kind",5],["Loyalty","Faithful support for someone or something",5],["Fairness","Treating people equally and justly",5],["Responsibility","Being accountable for your actions",5],["Free Will","The ability to make choices that aren't predetermined",5],["Determinism","The idea that every event is caused by earlier events",5],["Utilitarianism","Doing whatever creates the most happiness for the most people",5],["The Trolley Problem","Would you sacrifice one person to save five?",5],["Consent","Permission freely given",5],["Autonomy","Governing yourself independently",5],["Dignity","The worth every person deserves to have respected",5],["Altruism","Selfless concern for others",5],["Selfishness","Caring mainly about yourself",5],["Greed","Wanting more than you need",5],["Generosity","Willingness to give",5],["Integrity","Sticking to your principles when it's hard",5],["Hypocrisy","Saying one thing and doing another",5],["Virtue","Moral excellence",5],["Temptation","The desire to do something unwise",5],["Revenge","Hurting someone in return for a wrong",5],["Mercy","Compassion toward someone you could punish",5],["Karma","The idea that your actions come back to you",5],["Conscience","Your inner sense of right and wrong",5],["Duty","What you are obligated to do",5],["Rights","What people are entitled to",5],["Obedience","Following orders or rules",5],["Rebellion","Resisting authority",5],["Civil Disobedience","Peacefully breaking laws you believe are unjust",5],["Animal Rights","The idea that animals deserve moral consideration",5],["Euthanasia","Ending a life to relieve suffering",5],["Privacy vs Security","The trade-off between personal freedom and public safety",5],["Ends and Means","Whether a good goal justifies any method",5],["Moral Relativism","The idea that right and wrong depend on culture or perspective",5],["Objectivity","Judging without personal bias",5],["Subjectivity","Being based on personal feelings or opinions",5],["Existentialism","The idea that we create our own meaning in life",5],["Nihilism","The belief that life has no inherent meaning",5],["Stoicism","A philosophy of focusing only on what you can control",5],["Minimalism","Living with less to focus on what matters",5],["Materialism","Placing high value on possessions",5],["Hedonism","Pursuing pleasure as life's main aim",5],["The Good Life","What a well-lived life actually looks like",5],["Self-interest","Acting for your own benefit",5],["The Common Good","What benefits everyone in a society",5],["Tolerance","Accepting views you disagree with",5],["Moral Courage","Doing the right thing despite risk to yourself",5],["Whistleblowing","Exposing wrongdoing inside an organization",5],["Compromise","Settling a disagreement by each side giving something",5],["Neutrality","Not taking sides",5],["Apathy","Lack of interest or concern",5],["Compassion","Concern for the suffering of others",5],["Cruelty","Causing pain on purpose",5],["Corruption","Dishonest use of power for personal gain",5],["Accountability","Being answerable for outcomes",5],["Second Chances","Giving someone another opportunity after they fail",5],["Luck vs Merit","Whether success is earned or mostly lucky",5],["Inheritance","Receiving wealth or traits from those before you",5],["Ownership","The right to possess something",5],["Plagiarism","Passing off someone else's work as your own",5],["Cheating","Breaking rules to gain an advantage",5],["Sportsmanship","Fair and generous behavior in competition",5],["Tribalism","Strong loyalty to your own group over others",5],["Moral Dilemmas","Choices between two conflicting duties",5],["Gray Areas","Situations that are not clearly right or wrong",5],["Common Sense","Sound practical judgment",5],["Knowledge","Facts and understanding gained through experience or study",5],["Skepticism","Questioning claims before accepting them",5],["Faith","Strong belief without proof",5],["Logic","Reasoning by valid rules",5],["Critical Thinking","Analyzing information carefully before judging",5],["Socratic Method","Teaching and learning by asking questions",5],["The Self","Whatever it is that makes you, you",5],["Mind-Body Problem","How the mind relates to the physical body",5],["Ship of Theseus","If every part is replaced, is it still the same thing?",5],["Utopia","An imagined perfect society",5],["Dystopia","An imagined society gone badly wrong",5],["Progress Paradox","Life getting better while people feel worse",5],["Happiness vs Meaning","Whether to pursue pleasure or purpose",5],["Individualism","Prioritizing the individual over the group",5],["Collectivism","Prioritizing the group over the individual",5],["Anarchy","The absence of government",5],["Authority","The right to give orders and make decisions",5],["Reputation","What other people believe about you",5],["Complicity","Sharing responsibility for a wrong by going along with it",5],["The Golden Rule","Treat others as you want to be treated",5],["Moral Luck","Being judged for outcomes beyond your control",5],["Intentions","What you mean to do",5],["Consequences","The results of an action",5],["Promises","Commitments to do something",5],["Secrets","Information kept hidden",5],["Gossip","Talk about other people's private lives",5],["Judgment","Forming opinions about people or situations",5],["Empathy Gap","Underestimating how feelings will affect behavior",5],["Experience Machine","Would you plug into a machine that gives perfect happiness?",5],["Veil of Ignorance","Designing a fair society without knowing who you'll be in it",5],["Thought Experiments","Imagined scenarios that test our ideas",5],["Money","A medium of exchange that stores value",6],["Inflation","Prices rising over time",6],["Recession","A significant decline in economic activity",6],["Capitalism","An economy based on private ownership and markets",6],["Socialism","An economy with collective or state ownership",6],["Supply and Demand","How price balances what's available with what's wanted",6],["Competition","Rivalry between businesses or people",6],["Monopoly","One company controlling a market",6],["Consumerism","Buying things as a way of life",6],["Advertising","Promoting products to persuade buyers",6],["Branding","Creating a distinctive identity for a product or company",6],["Marketing","Promoting and selling products",6],["Saving","Keeping money for later",6],["Investing","Putting money into something and expecting a return",6],["The Stock Market","Where shares of companies are bought and sold",6],["Compound Interest","Earning interest on your interest over time",6],["Debt","Money owed",6],["Credit","Borrowing now and paying later",6],["Budgeting","Planning how to spend money",6],["Wealth","An abundance of money or assets",6],["Billionaires","People with more than a billion in assets",6],["Minimum Wage","The lowest pay legally allowed for work",6],["Gig Economy","Short-term, flexible jobs instead of permanent ones",6],["Side Hustles","Paid work done alongside a main job",6],["Entrepreneurship","Starting and running your own business",6],["Small Businesses","Independently owned local companies",6],["Trade","Buying and selling goods across borders",6],["Tariffs","Taxes on imported goods",6],["Supply Chains","The network that gets products to you",6],["Fast Fashion","Cheap, quickly produced trendy clothing",6],["Sharing Economy","Renting or sharing things instead of owning them",6],["Value","What something is worth",6],["Price","What you pay for something",6],["Luxury","Expensive things beyond necessity",6],["Bargains","Things bought for less than they're worth",6],["Tipping","Extra money given for good service",6],["Economic Growth","An increase in what a country produces",6],["GDP","The total value of goods and services a country produces",6],["Productivity","How much output you get from a unit of effort",6],["Opportunity Cost","What you give up when you choose something else",6],["Incentives","Things that motivate people to act",6],["Risk and Reward","The bigger the risk, the bigger the potential gain",6],["Economic Bubbles","Prices rising far beyond real value, then bursting",6],["Banks","Institutions that hold and lend money",6],["Interest Rates","The cost of borrowing money",6],["Cost of Living","How much it costs to live somewhere",6],["Financial Literacy","Understanding how to manage money",6],["Frugality","Being careful and sparing with money",6],["Impulse Buying","Unplanned purchases made on a whim",6],["Subscriptions","Paying regularly for ongoing access",6],["Free Apps","Services you pay for with your data or attention",6],["Black Friday","A huge annual day of discount shopping",6],["Unions","Workers organizing for better conditions",6],["Strikes","Workers stopping work to demand change",6],["Outsourcing","Paying outside companies or countries to do work",6],["Corporations","Large companies owned by shareholders",6],["Corporate Responsibility","Businesses acting ethically beyond making profit",6],["Philanthropy","Giving money to good causes",6],["Tourism","Traveling for pleasure, and the industry built on it",6],["Circular Economy","Reusing and recycling instead of throwing away",6],["Degrowth","Producing and consuming less to protect the planet",6],["Wealth Gap","The difference between rich and poor",6],["Universal Healthcare","Health coverage for everyone in a country",6],["Pensions","Regular payments after retirement",6],["Money and Happiness","Whether money really buys happiness",6],["Scarcity Mindset","Thinking focused on what you lack",6],["Abundance Mindset","Believing there's enough to go around",6],["Negotiation","Discussing to reach an agreement",6],["Contracts","Legally binding agreements",6],["Patents","Exclusive rights to an invention",6],["Intellectual Property","Legal ownership of creations of the mind",6],["Counterfeits","Fake copies of branded products",6],["Lotteries","Gambling for a big prize by pure chance",6],["Gambling","Risking money on uncertain outcomes",6],["Brand Loyalty","Sticking with a brand you trust",6],["Customer Service","Helping buyers before and after they buy",6],["Status Symbols","Possessions that signal social rank",6],["The Middle Class","People between the rich and the poor",6],["Shopping Local","Buying from businesses near you",6],["Cash","Physical money",6],["Barter","Trading goods without money",6],["Economics","The study of how societies use limited resources",6],["Markets","Systems where buyers meet sellers",6],["Free Trade","Trade without barriers between countries",6],["Protectionism","Shielding local industry from foreign competition",6],["Housing Affordability","Whether ordinary people can afford a home",6],["Hustle Culture","Glorifying constant work",6],["Passive Income","Money earned with little ongoing effort",6],["Crowdfunding","Raising money from many people online",6],["Venture Capital","Investment in risky young companies",6],["Bankruptcy","Being legally unable to pay your debts",6],["Price Tags","How a number shapes what we think something is worth",6],["Free Shipping","Paying for delivery without noticing",6],["Planned Spending","Deciding purchases ahead of time",6],["Credit Scores","Numbers that judge how trustworthy a borrower is",6],["Economic Inequality","Large differences in income and wealth",6],["Remittances","Money migrants send home to family",6],["Car Ownership","Owning a car, and what it really costs",6],["Second-hand Shopping","Buying used goods instead of new",6],["Leadership","Guiding and inspiring others",7],["Teamwork","Working together toward a shared goal",7],["Communication","Sharing information clearly",7],["Feedback","Information about performance that helps you improve",7],["Criticism","Pointing out faults, constructively or not",7],["Mentorship","An experienced person guiding a less experienced one",7],["Networking","Building professional relationships",7],["Career","Your path of work over a lifetime",7],["Promotion","Moving up to a bigger role",7],["Work-Life Balance","Splitting time well between work and personal life",7],["Time Management","Planning how to divide your time",7],["Deadlines","Times by which something must be finished",7],["Meetings","Gatherings to discuss work, loved and hated",7],["Workplace Culture","The shared values and habits of a workplace",7],["Hierarchy","A ranking system of authority",7],["Flat Organizations","Workplaces with few layers of management",7],["Micromanagement","Controlling every detail of other people's work",7],["Delegation","Handing tasks to others",7],["Initiative","Acting without being told",7],["Adaptability","Adjusting to new conditions",7],["Problem Solving","Finding solutions to difficult issues",7],["Conflict Resolution","Settling disagreements constructively",7],["Public Speaking","Talking in front of an audience",7],["Storytelling","Sharing ideas through narrative",7],["First Impressions","Judgments formed on first meeting",7],["Body Language","Communicating through posture and gesture",7],["Eye Contact","Looking at someone while you talk",7],["Active Listening","Fully concentrating on and responding to a speaker",7],["Small Talk","Light, casual conversation",7],["Job Interviews","Conversations to judge whether someone fits a role",7],["Resumes","One-page summaries of your work history",7],["Strengths","Things you do well",7],["Weaknesses","Areas where you could improve",7],["Goals","Things you aim to achieve",7],["Five-Year Plans","Where you see yourself in five years",7],["Passion","Strong enthusiasm for something",7],["Soft Skills","People and communication abilities",7],["Hard Skills","Technical, teachable abilities",7],["Lifelong Learning","Continuing to learn throughout your life",7],["Experience","Knowledge gained from doing things",7],["Talent","Natural aptitude",7],["Practice","Repeated exercise to improve",7],["Mastery","Deep, comprehensive skill in something",7],["Mistakes","Actions that turn out to be wrong",7],["Learning from Failure","Using setbacks to grow",7],["Pressure","Demands that push you to perform",7],["Collaboration","Working jointly on a task",7],["Remote vs Office","The debate over where work happens best",7],["Four-Day Week","Working four days instead of five",7],["Quiet Quitting","Doing only exactly what your job requires",7],["Job Hopping","Changing jobs frequently",7],["Company Loyalty","Staying with one employer for the long term",7],["Salary","Fixed regular pay for work",7],["Negotiating Pay","Discussing and agreeing your salary",7],["Job Satisfaction","How content you are with your work",7],["Dream Jobs","The ideal work you imagine for yourself",7],["Calling","A strong inner pull toward certain work",7],["Hobbies","Activities done for pleasure in free time",7],["Side Projects","Personal work outside your job",7],["Personal Branding","How you present yourself professionally",7],["Internships","Short work placements to gain experience",7],["Onboarding","Helping new employees settle in",7],["Company Values","The principles an organization claims to live by",7],["Mission Statements","One-line summaries of an organization's purpose",7],["Vision","A picture of the future you're working toward",7],["Strategy","A plan for reaching long-term goals",7],["Decision-Making","Choosing a course of action",7],["Prioritization","Deciding what matters most right now",7],["Risk-Taking","Choosing to act despite uncertainty",7],["Comfort Zone","Situations where you feel at ease",7],["Stretch Goals","Ambitious targets beyond normal reach",7],["Morning Routines","Habits at the start of the day",7],["Self-Discipline","Doing what you should even when you don't want to",7],["Work Ethic","Belief in the value of hard work",7],["Professionalism","Competent and respectful conduct at work",7],["Customer First","Putting customers' needs at the center",7],["Ownership Mentality","Treating work as if it were your own business",7],["Role Models","People others aspire to be like",7],["Influence","The ability to affect other people's decisions",7],["Credibility","Being believable and trusted",7],["Elevator Pitch","A thirty-second summary of who you are or an idea",7],["Unpopular Opinions","Views most people disagree with",7],["Toxic Workplaces","Jobs with a harmful culture",7],["Office Politics","Power plays and alliances at work",7],["Recognition","Being acknowledged for what you achieve",7],["Career Change","Switching to a completely new field",7],["Gap Years","Taking time off between life stages",7],["The Future of Work","How jobs will change in the coming decades",7],["Multitasking at Work","Juggling many tasks during the workday",7],["Burnout Culture","Workplaces that treat exhaustion as normal",7],["Imposter Moments","Times you feel you don't belong in the room",7],["Handling Rejection","Bouncing back from a \"no\"",7],["Asking for Help","Admitting you need support",7],["Saying No","Turning down requests to protect your time",7],["Meetings That Could Be Emails","Unnecessary meetings and what they cost",7],["Generalists vs Specialists","Knowing a little of everything or a lot of one thing",7],["Curiosity at Work","Asking questions to learn and improve",7],["Owning Mistakes","Admitting errors openly",7],["Managing Up","Working effectively with your boss",7],["Leading Without Authority","Influencing people you don't manage",7],["Psychological Safety","Feeling safe to speak up without punishment",7],["Climate Change","Long-term shifts in global temperatures and weather",8],["Global Warming","Earth's average temperature rising",8],["Carbon Footprint","The greenhouse gases caused by your activities",8],["Renewable Energy","Energy from sources that don't run out",8],["Solar Power","Energy from sunlight",8],["Wind Power","Energy from wind",8],["Fossil Fuels","Coal, oil, and gas formed from ancient organisms",8],["Pollution","Harmful substances in the environment",8],["Plastic","Durable synthetic material that lasts for centuries",8],["Recycling","Turning waste into reusable material",8],["Zero Waste","Trying to live without producing trash",8],["Sustainability","Meeting today's needs without harming the future",8],["Deforestation","Clearing forests",8],["Rainforests","Dense tropical forests full of life",8],["Oceans","Salt water covering most of Earth's surface",8],["Coral Reefs","Underwater ecosystems built by tiny animals",8],["Rivers","Natural flowing streams of water",8],["Mountains","Large natural elevations of land",8],["Deserts","Dry places with very little rain",8],["Weather","Day-to-day conditions of the atmosphere",8],["Seasons","Parts of the year with distinct weather",8],["Rain","Water falling from clouds",8],["Storms","Violent weather disturbances",8],["Natural Disasters","Destructive natural events",8],["Wildfires","Uncontrolled fires in nature",8],["Droughts","Long periods without rain",8],["Floods","Water overflowing onto dry land",8],["Water Scarcity","Not enough clean water",8],["Endangered Species","Species at risk of extinction",8],["Conservation","Protecting nature and natural resources",8],["National Parks","Protected natural areas",8],["Zoos","Places where animals are kept for people to see",8],["Wildlife","Animals living in the wild",8],["Bees","Pollinators vital to growing food",8],["Trees","Woody plants essential to life on Earth",8],["Gardens","Cultivated spaces for plants",8],["Soil","The top layer of Earth where plants grow",8],["Agriculture","Farming land and raising animals",8],["Organic Food","Food grown without synthetic chemicals",8],["Lab-grown Meat","Meat grown from cells instead of raised animals",8],["Eating Insects","Bugs as a source of protein",8],["Overpopulation","Too many people for the available resources",8],["Urban Nature","Green spaces in cities",8],["Light Pollution","Too much artificial light at night",8],["Noise Pollution","Harmful levels of everyday noise",8],["Air Quality","How clean the air is",8],["Green Cities","Cities designed with sustainability in mind",8],["Energy Saving","Using less energy",8],["Climate Anxiety","Worry about the planet's future",8],["Greenwashing","Misleading claims of being eco-friendly",8],["Animal Migration","Seasonal journeys animals make",8],["Hibernation","Animals sleeping through winter",8],["Camouflage","Blending into surroundings",8],["Symbiosis","Close relationships between different species",8],["Predators","Animals that hunt other animals",8],["Instinct","Behavior you're born with",8],["The Sun","The star at the center of our solar system",8],["Night Sky","The sky after dark, full of stars",8],["Tides","The daily rise and fall of the sea",8],["Glaciers","Slow-moving rivers of ice",8],["Sea Level Rise","Oceans rising as the planet warms",8],["Islands","Land surrounded by water",8],["Wilderness","Wild land untouched by people",8],["Rewilding","Restoring land to its natural state",8],["Ecotourism","Responsible travel to natural areas",8],["Hunting","Pursuing wild animals",8],["Overfishing","Catching fish faster than they can reproduce",8],["Meat Consumption","How much meat people eat",8],["Veganism","Avoiding all animal products",8],["Composting","Turning food scraps into soil",8],["Climate Policy","Government action on climate",8],["Climate Refugees","People forced to move by climate effects",8],["Geoengineering","Large-scale tinkering with Earth's climate",8],["Nuclear Waste","Radioactive leftovers from nuclear power",8],["Natural Resources","Materials from nature that people use",8],["Gold","A precious metal valued throughout history",8],["Diamonds","Precious stones, natural or lab-made",8],["Oil","The fossil fuel powering much of the world",8],["Mining","Extracting minerals from the earth",8],["The Atmosphere","The layers of gas surrounding Earth",8],["Ozone Layer","The atmosphere's shield against UV radiation",8],["Clouds","Visible water droplets floating in the sky",8],["Snow","Frozen precipitation",8],["Flowers","The parts of plants that make seeds, prized for beauty",8],["Seeds","The starting point of a plant",8],["Roots","The underground part of a plant, or your origins",8],["Mushrooms","Fungi, and the hidden networks that connect forests",8],["Dogs","Companions domesticated over thousands of years",8],["Cats","Independent animals that chose to live with humans",8],["Birds","Feathered animals descended from dinosaurs",8],["Whales","Huge, intelligent ocean mammals",8],["Octopuses","Clever sea creatures with eight arms and three hearts",8],["Ants","Tiny insects that build complex societies",8],["Volcanic Islands","Land born from eruptions under the sea",8],["The Arctic","The icy region around the North Pole",8],["Earth Day","An annual day for environmental awareness",8],["Weeds","Plants growing where people don't want them",8],["Fresh Water","Water without salt, a tiny share of Earth's water",8],["Art","Creative expression of imagination or skill",9],["Music","Organized sound that expresses emotion",9],["Poetry","Writing that uses rhythm and imagery",9],["Literature","Written works with lasting artistic value",9],["Books","Written works bound together",9],["Reading","Taking in written words",9],["Libraries","Places offering free access to books and knowledge",9],["Movies","Moving pictures that tell stories",9],["Television","Programs broadcast into homes",9],["Theater","Live performance on a stage",9],["Dance","Moving the body to music",9],["Photography","Capturing images with a camera",9],["Painting","Applying color to a surface to make art",9],["Sculpture","Three-dimensional art",9],["Architecture","The art of designing buildings",9],["Museums","Places that preserve and display culture",9],["Design","Planning how things look and work",9],["Typography","The art of arranging letters",9],["Color Theory","How colors work together",9],["Comics","Stories told through sequential images",9],["Animation","Drawings or models made to move",9],["Fiction","Invented stories",9],["Nonfiction","Writing about real events and ideas",9],["Myths","Traditional stories explaining the world",9],["Fairy Tales","Magical stories, often for children",9],["Heroes","People admired for courage or achievement",9],["Villains","Characters who oppose the hero",9],["Festivals","Cultural or religious celebrations",9],["Holidays","Days of celebration or rest",9],["Food Culture","How food reflects a society",9],["Cooking","Preparing food",9],["Coffee","A drink that shaped daily rituals around the world",9],["Tea","A drink with deep cultural roots",9],["Street Food","Food sold in public places",9],["Travel","Going from place to place",9],["Culture Shock","Disorientation in an unfamiliar culture",9],["Cultural Appropriation","Adopting parts of another culture without respect or credit",9],["Heritage","Traditions passed down",9],["Folk Music","Traditional music of a people",9],["Pop Culture","Mainstream entertainment and trends",9],["Trends","General directions of change in taste",9],["Remakes","New versions of old stories",9],["Originality","Being new and unique",9],["Copying","Imitating someone else's work",9],["Inspiration","Something that sparks creativity",9],["Talent vs Hard Work","Which matters more for success",9],["Critics","People who judge creative work",9],["Awards","Prizes recognizing achievement",9],["Fame","Being widely known",9],["Audiences","People who watch or listen",9],["Performance","Presenting something to an audience",9],["Improvisation","Creating on the spot without preparation",9],["Comedy","Entertainment meant to make people laugh",9],["Tragedy","Drama with a sad ending",9],["Happy Endings","Stories that end well",9],["Plot Twists","Unexpected turns in a story",9],["Symbols","Things that stand for something else",9],["Metaphors","Describing one thing as if it were another",9],["Translation","Converting words into another language",9],["Lost in Translation","Meaning that gets lost between languages",9],["Handwriting","Writing by hand in a digital age",9],["Letters","Written messages sent by mail",9],["Diaries","Personal written records",9],["Graffiti","Writing or drawings on public walls",9],["Street Art","Art created in public spaces",9],["Tattoos","Permanent designs on skin",9],["Uniforms","Standard clothing for a group",9],["Vintage","Things from the past valued today",9],["Collecting","Gathering items of a particular kind",9],["Crafts","Making things by hand",9],["DIY","Doing it yourself instead of paying someone",9],["Games","Structured play with rules",9],["Board Games","Tabletop games with pieces",9],["Puzzles","Problems designed to test ingenuity",9],["Chess","A strategy game played for over a thousand years",9],["Magic Tricks","Illusions performed to entertain",9],["The Circus","Traveling shows of acrobats and performers",9],["Concerts","Live music performances",9],["Playlists","Curated lists of songs",9],["Lyrics","The words of a song",9],["Hip-hop","A culture of rap, DJing, breaking, and graffiti",9],["Classical Music","The Western tradition of composed art music",9],["Opera","Drama set to music",9],["Film Soundtracks","Music written for movies",9],["Binge-watching","Watching many episodes in one sitting",9],["Spoilers","Revealing plot details before someone has seen it",9],["Fandoms","Communities around shared enthusiasm",9],["Cartoons","Animated shows, often funny",9],["Toys","Objects made for play",9],["Rites of Passage","Ceremonies that mark life transitions",9],["Birthdays","Yearly celebrations of being born",9],["Weddings","Ceremonies that celebrate a marriage",9],["Funerals","Ceremonies honoring the dead",9],["Gift Giving","Offering presents to others",9],["Hygge","A Danish idea of cozy contentment",9],["Ikigai","A Japanese idea of your reason for being",9],["Wabi-sabi","A Japanese idea of beauty in imperfection",9],["Ubuntu","An African idea that a person is a person through others",9],["Saudade","A Portuguese word for longing for something absent",9],["Schadenfreude","Pleasure at someone else's misfortune",9],["Serendipity","Happy accidents",9],["Kintsugi","Repairing broken pottery with gold to highlight the cracks",9],["Wanderlust","A strong desire to travel",9],["Lagom","A Swedish idea of \"just the right amount\"",9],["Mono no Aware","A Japanese sense of gentle sadness at things passing",9],["Flâneur","Someone who wanders a city just to observe it",9],["Selfies","Photos you take of yourself",9],["Podcasts","Audio shows on any topic you can imagine",9],["Audiobooks","Books you listen to instead of read",9]]};
+const CAT={
+  abstract:{name:"Big Ideas",h:250},mind:{name:"Mind",h:330},science:{name:"Science",h:190},tech:{name:"Tech",h:215},
+  society:{name:"Society",h:28},ethics:{name:"Ethics",h:355},economy:{name:"Money",h:140},work:{name:"Work & Interview",h:42},
+  earth:{name:"Earth",h:160},culture:{name:"Culture",h:285}
+};
+const UNI=[
+ "Explain {w} to a ten-year-old, then to your boss.",
+ "Tell a short story where {w} changed something for you.",
+ "Argue that {w} is overrated. Then flip and defend it.",
+ "What would the world look like without {w}?",
+ "How will {w} look fifty years from now?",
+ "Who benefits from {w}, and who pays the price?",
+ "If {w} were a person walking into this room, describe them.",
+ "What do most people get wrong about {w}?",
+ "Connect {w} to something you saw or read this week.",
+ "Is {w} more about the individual or about society?",
+ "Give {w} a score out of ten for your life right now. Justify it.",
+ "What's the opposite of {w}, and which one do we need more of?",
+ "Describe {w} using only a metaphor, then unpack it.",
+ "What question about {w} would you love answered?"
+];
+const SPEC={
+ abstract:["Can {w} be measured? How would you try?","What color, sound, or shape is {w}, and why?","Has your idea of {w} changed since you were a kid?"],
+ mind:["When did you last notice {w} in yourself?","How could someone get better at handling {w}?","Is {w} something we're born with or something we learn?"],
+ science:["Why should a non-scientist care about {w}?","What's the most surprising fact you know about {w}?","What would you research about {w} with unlimited money?"],
+ tech:["Has {w} made life better or just faster?","Write one rule everyone should follow about {w}.","What would your grandparents think of {w}?"],
+ society:["If you could change one policy about {w}, what would it be?","How does {w} look different from country to country?","What will people in 2100 think about how we handle {w}?"],
+ ethics:["Describe a case where {w} is clearly right, and one where it's clearly wrong.","Would your view on {w} change if it involved your family?","Who gets to decide what's right about {w}?"],
+ economy:["Who wins and who loses with {w}?","How has {w} shaped your own spending or choices?","Should governments step in on {w}, or leave it to the market?"],
+ work:["Interview mode: tell me about {w} using one real example.","How would a great manager approach {w}?","What's one habit around {w} you'd want on day one of a new job?"],
+ earth:["What's one small action about {w} anyone can take today?","Who's responsible for {w}: people, companies, or governments?","Describe {w} as if to someone who's never been outdoors."],
+ culture:["What song, film, or tradition captures {w} best?","How has {w} changed since your grandparents' time?","Would you keep {w} exactly as it is, or reinvent it?"]
+};
+const PHRASES=["Here's what surprised me…","Let me give you an example.","On the flip side,","The way I see it,","What this really comes down to is…","Picture this:","To put it another way,","Most people assume… but actually…","That brings me to my next point.","The bottom line is…","I used to think…, now I think…","Here's the tricky part.","Zoom out for a second.","Think about it like this:","Which raises a bigger question:","In my experience,","A good example is…","So why does this matter?","Let's be honest,","The other side of the coin is…","If I had to sum it up in one line…","It's a bit like…","What I keep coming back to is…","Here's a quick story.","Contrary to popular belief,","Let me push back on that a little.","Here's where it gets interesting."];
+const TIPS=["Swap \"um\" for a pause. Silence sounds confident.","Start with a bold one-line opinion. You can soften it later.","One specific example beats three vague ones.","If you get stuck, define the word in your own words. It buys you time.","End by circling back to your first sentence.","Slow down. Most people talk faster when they're nervous.","Use numbers: \"There are two reasons…\" keeps you organized.","Don't chase the perfect answer. Interesting beats correct.","Name a feeling, not just a fact. It makes people listen.","It's fine to disagree with the prompt. That's often the best talk."];
+const PHASES=[
+ {to:10,t:"Hook",s:"Say what the word means to you, in one bold line."},
+ {to:30,t:"Example",s:"Tell a story, a fact, or something you've seen."},
+ {to:48,t:"Twist",s:"Show the other side, or a surprising angle."},
+ {to:60,t:"Land it",s:"Wrap up with one takeaway. Echo your hook."}
+];
+const CHECKS=["Kept talking the whole minute","Used a real example","Few \"ums\"","Showed two sides","Strong ending","Used the phrase to try"];
+
+const $=id=>document.getElementById(id);
+const W=document.querySelector(".wrap");function setStep(s){W.dataset.step=s}
+const store={get(k,d){try{const v=localStorage.getItem("fd_"+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem("fd_"+k,JSON.stringify(v))}catch(e){}}};
+let filter=store.get("filter",[]); // empty = all
+let history=store.get("history",[]);
+let seen=new Set(store.get("seen",[]));
+let talks=store.get("talks",0);
+let cur=0, rolling=false;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const catKey=i=>D.cats[D.words[i][2]];
+
+// die faces
+const FACES={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+const die=$("die");die.innerHTML="<i></i>".repeat(9);
+function face(n){[...die.children].forEach((d,i)=>d.classList.toggle("on",FACES[n].includes(i)))}
+face(5);
+
+// categories
+const catsEl=$("cats");
+function renderCats(){
+  catsEl.innerHTML="";
+  const all=document.createElement("button");all.className="cat all";all.type="button";all.textContent="All topics";
+  all.setAttribute("aria-pressed",filter.length===0);all.onclick=()=>{filter=[];save();renderCats()};catsEl.append(all);
+  D.cats.forEach(k=>{const b=document.createElement("button");b.type="button";b.className="cat";b.style.setProperty("--h",CAT[k].h);
+    b.textContent=CAT[k].name;b.setAttribute("aria-pressed",filter.includes(k));
+    b.onclick=()=>{filter=filter.includes(k)?filter.filter(x=>x!==k):[...filter,k];if(filter.length===D.cats.length)filter=[];save();renderCats()};
+    catsEl.append(b)});
+}
+function pool(){const p=[];D.words.forEach((w,i)=>{if(!filter.length||filter.includes(D.cats[w[2]]))p.push(i)});return p}
+function pick(){
+  const p=pool();const recent=new Set(history.slice(0,40));
+  let fresh=p.filter(i=>!recent.has(i)&&!seen.has(i));
+  if(!fresh.length)fresh=p.filter(i=>!recent.has(i));
+  if(!fresh.length)fresh=p;
+  return rnd(fresh);
+}
+function show(i,{land=true,keepAngles=false}={}){
+  cur=i;const [w,d]=D.words[i];const k=catKey(i);
+  const word=$("word");word.classList.remove("spin","land");word.textContent=w;
+  if(land&&!reduce){void word.offsetWidth;word.classList.add("land")}
+  $("def").textContent=d;$("chip").textContent=CAT[k].name;$("card").style.setProperty("--h",CAT[k].h);
+  $("chip").style.setProperty("--h",CAT[k].h);document.documentElement.style.setProperty("--h",CAT[k].h);document.documentElement.style.setProperty("--album",ALBUM[k]);
+  $("num").textContent="#"+String(i+1).padStart(4,"0");
+  if(!keepAngles)angles();
+  $("phraseText").textContent=rnd(PHRASES);$("tip").textContent="Tip: "+rnd(TIPS);
+}
+function angles(){
+  const i=cur,w=D.words[i][0],k=catKey(i);
+  const spec=[...SPEC[k]].sort(()=>Math.random()-.5).slice(0,1);
+  const uni=[...UNI].sort(()=>Math.random()-.5).slice(0,2);
+  const list=[...spec,...uni];const el=$("angles");el.innerHTML="";
+  const labels=["1","2","3"];
+  list.forEach((t,n)=>{const div=document.createElement("div");div.className="angle";div.style.setProperty("--h",CAT[k].h);
+    const ic=document.createElement("span");ic.className="ic";ic.textContent=labels[n];
+    const p=document.createElement("p");p.textContent=t.replaceAll("{w}",w.toLowerCase()===w?w:w);
+    div.append(ic,p);el.append(div)});
+}
+function roll(){
+  if(rolling)return;rolling=true;resetTimer();
+  const btn=$("roll");btn.classList.add("rolling");$("rollLabel").textContent="Rolling…";
+  const target=pick();const p=pool();const word=$("word");
+  const finish=()=>{face(1+Math.floor(Math.random()*6));btn.classList.remove("rolling");$("rollLabel").textContent="Roll again";
+    const cd=$("card");cd.classList.add("bump");setTimeout(()=>cd.classList.remove("bump"),140);show(target);renderNotes();seen.add(target);history=[target,...history.filter(x=>x!==target)].slice(0,60);save();renderHistory();rolling=false;setStep("start");blip(660,.08)};
+  if(reduce){finish();return}
+  let n=0;const total=16;
+  const tick=()=>{if(n>=total){finish();return}
+    const j=rnd(p);word.classList.add("spin");word.textContent=D.words[j][0];face(1+(n%6));blip(220+n*25,.025);
+    n++;setTimeout(tick,25+n*n*.7)};
+  tick();
+}
+function renderHistory(){
+  const el=$("history");$("historySect").hidden=!history.length&&!(typeof notes!=="undefined"&&notes.length);
+  if(!history.length){el.innerHTML='';return}
+  el.innerHTML="";history.slice(0,14).forEach(i=>{const b=document.createElement("button");b.type="button";b.textContent=D.words[i][0];
+    b.style.setProperty("--h",CAT[catKey(i)].h);b.onclick=()=>{resetTimer();show(i);setStep("start");scrollTo({top:0,behavior:reduce?"auto":"smooth"})};el.append(b)});
+}
+function save(){store.set("filter",filter);store.set("history",history);store.set("seen",[...seen]);store.set("talks",talks);
+  $("sTalks").textContent=talks;$("sSeen").textContent=seen.size;}
+
+// sound
+let ac=null;
+function blip(f,d){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();
+  o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(.06,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d+.05);
+  o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d+.06)}catch(e){}}
+
+// timer
+const C=326.73;let tState="idle",tStart=0,tElapsed=0,raf=0,mode="talk",lastPhase=-1;
+const bar=$("bar"),steps=[...document.querySelectorAll(".steps span")];
+function fmt(s){s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function draw(){
+  const dur=mode==="prep"?15:60;const left=dur-tElapsed;
+  bar.style.strokeDashoffset=C*(Math.min(1,tElapsed/dur));
+  bar.classList.toggle("prep",mode==="prep");bar.classList.toggle("late",mode==="talk"&&left<=10&&tState!=="idle");
+  $("clock").textContent=fmt(left);
+  if(mode==="prep"){$("clockLbl").textContent="think";$("phase").textContent="Think, don't write";
+    $("phaseSub").textContent="Pick one angle below and one example. That's enough.";steps.forEach(s=>s.classList.remove("on"));return}
+  $("clockLbl").textContent=tState==="idle"?"ready":tState==="paused"?"paused":"talk";
+  if(tState==="idle"){$("phase").textContent="Hit start and talk for 60 seconds";$("phaseSub").textContent="The ring walks you through hook, example, twist, and landing.";steps.forEach(s=>s.classList.remove("on"));return}
+  const pi=PHASES.findIndex(p=>tElapsed<p.to);const ph=PHASES[pi<0?3:pi];
+  if(pi!==lastPhase&&pi>0)blip(520,.06);lastPhase=pi;
+  $("phase").textContent=ph.t;$("phaseSub").textContent=ph.s;steps.forEach((s,n)=>s.classList.toggle("on",n<=(pi<0?3:pi)));
+}
+function loop(now){
+  tElapsed=(now-tStart)/1000;const dur=mode==="prep"?15:60;
+  if(tElapsed>=dur){
+    if(mode==="prep"){mode="talk";tStart=now;tElapsed=0;lastPhase=-1;blip(880,.15)}
+    else{tElapsed=60;draw();finishTalk();return}
+  }
+  draw();raf=requestAnimationFrame(loop);
+}
+function startPause(){
+  if(tState==="running"){tState="paused";cancelAnimationFrame(raf);$("start").textContent="Resume";draw();return}
+  if(tState==="idle"){mode=$("prep").checked?"prep":"talk";tElapsed=0;lastPhase=-1;$("done").hidden=true;blip(440,.08)}
+  tState="running";setStep("talking");tStart=performance.now()-tElapsed*1000;$("start").textContent="Pause";wake();raf=requestAnimationFrame(loop);
+}
+function resetTimer(){cancelAnimationFrame(raf);tState="idle";mode="talk";tElapsed=0;$("start").textContent="Start";draw();}
+function finishTalk(){
+  tState="idle";setStep("roll");$("start").textContent="Again";$("clock").textContent="0:00";$("clockLbl").textContent="done";
+  $("phase").textContent="Nailed a minute on "+D.words[cur][0]+"!";$("phaseSub").textContent="Roll a new word or try the same one with another angle.";
+  talks++;save();blip(660,.1);setTimeout(()=>blip(990,.18),130);confetti();
+  $("checks").innerHTML="";renderChecks();
+  $("done").hidden=false;const dr=store.get("draft",null);$("note").value=dr&&dr.w===cur?dr.t:"";$("nhint").textContent="";renderNotes();setTimeout(growNote,0);
+}
+let lock=null;async function wake(){try{lock=await navigator.wakeLock?.request("screen")}catch(e){}}
+
+// confetti
+const cv=$("confetti"),cx=cv.getContext("2d");
+function confetti(){
+  if(reduce)return;const dpr=devicePixelRatio||1;cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;cx.scale(dpr,dpr);
+  const cs=getComputedStyle(document.documentElement);const cols=["#FF2D55","#FF9F0A","#34C759","#0A84FF","#BF5AF2"];
+  const ps=Array.from({length:120},()=>({x:innerWidth/2,y:innerHeight*.35,vx:(Math.random()-.5)*12,vy:-Math.random()*12-4,r:Math.random()*6+4,c:rnd(cols),a:Math.random()*6,s:(Math.random()-.5)*.3}));
+  let f=0;(function step(){cx.clearRect(0,0,innerWidth,innerHeight);ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a+=p.s;
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);cx.restore()});
+    if(++f<110)requestAnimationFrame(step);else cx.clearRect(0,0,innerWidth,innerHeight)})();
+}
+
+// wire up
+$("roll").onclick=roll;$("start").onclick=startPause;$("reset").onclick=()=>{resetTimer();$("done").hidden=true;setStep("start")};
+$("shuffle").onclick=angles;
+addEventListener("keydown",e=>{if(e.target.closest("textarea"))return;if(e.target.closest("input,button")&&e.key===" ")return;
+  if(e.key==="r"||e.key==="R"){roll()}else if(e.key===" "){e.preventDefault();startPause()}});
+$("sTotal").textContent=D.words.length.toLocaleString();
+
+const ALBUM={abstract:"#4A3A8C",mind:"#8A2D55",science:"#1E5A73",tech:"#2B3C85",society:"#8B4A22",ethics:"#7A2433",economy:"#24644A",work:"#7D5C1E",earth:"#3D6630",culture:"#5E2C74"};
+const STYLES=[["notion","Notion","#37352F","#37352F","#FFFFFF"],["apple","Apple","linear-gradient(135deg,#0A84FF,#5E5CE6)","#0A84FF","#FFFFFF"],["instagram","Instagram","linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4)","#DD2A7B","#FFFFFF"],["spotify","Spotify","#1ED760","#1ED760","#000000"],["airbnb","Airbnb","#FF385C","#FF385C","#FFFFFF"],["duo","Duolingo","#58CC02","#58CC02","#FFFFFF"],["linear","Linear","#5E6AD2","#5E6AD2","#FFFFFF"],["figma","Figma","conic-gradient(#F24E1E 0 20%,#FF7262 0 40%,#A259FF 0 60%,#1ABCFE 0 80%,#0ACF83 0)","#A259FF","#FFFFFF"]];
+let style=store.get("style2","notion");if(!STYLES.some(s=>s[0]===style))style="notion";
+function applyStyle(s){style=s;if(s==="apple")document.documentElement.removeAttribute("data-style");else document.documentElement.setAttribute("data-style",s);store.set("style2",s);
+  [...document.querySelectorAll(".sty")].forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===s))}
+STYLES.forEach(([k,n,c,tint,ink])=>{const b=document.createElement("button");b.type="button";b.className="sty";b.dataset.s=k;b.style.setProperty("--c",tint);b.style.setProperty("--cbg",c);b.style.setProperty("--cink",ink);
+  const sw=document.createElement("span");sw.className="sw";sw.style.background=c;b.append(sw,document.createTextNode(n));b.onclick=()=>applyStyle(k);$("styles").append(b)});
+applyStyle(style);
+
+// ---- training notes (lightweight) ----
+let notes=store.get("notes",[]);
+function fmtDate(t){try{return new Date(t).toLocaleDateString(undefined,{month:"short",day:"numeric"})}catch(e){return""}}
+function renderNotes(){const p=$("nprev");const n=notes.find(x=>x.w===cur&&x.t);if(n){p.textContent="Last time ("+fmtDate(n.d)+"): "+n.t;p.hidden=false}else p.hidden=true}
+function growNote(){const a=$("note");a.style.height="auto";a.style.height=Math.min(a.scrollHeight,120)+"px"}
+$("note").addEventListener("input",()=>{store.set("draft",{w:cur,t:$("note").value});$("nhint").textContent="";growNote()});
+$("note").addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.metaKey||e.ctrlKey))$("noteSave").click()});
+$("noteSave").onclick=()=>{const t=$("note").value.trim();const c=[...document.querySelectorAll("#checks .check[aria-pressed='true']")].map(b=>b.dataset.t||b.textContent);
+  
+  notes=[{w:cur,t,c,d:Date.now()},...notes].slice(0,300);store.set("notes",notes);store.set("draft",null);
+  $("note").value="";growNote();$("nhint").textContent="Saved to History.";renderNotes();renderSessions();$("checks").innerHTML="";renderChecks()};
+
+// ---- custom tags + session history ----
+let myTags=store.get("tags",[]);let sessAll=false;
+function renderChecks(){const el=$("checks");const on=new Set([...el.querySelectorAll(".check[aria-pressed='true']")].map(b=>b.dataset.t));el.innerHTML="";
+  [...CHECKS,...myTags].forEach(c=>{const b=document.createElement("button");b.type="button";b.className="check";b.dataset.t=c;b.textContent=c;b.setAttribute("aria-pressed",on.has(c)?"true":"false");
+    b.onclick=()=>b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");
+    if(myTags.includes(c)){const x=document.createElement("span");x.className="tx";x.textContent="×";x.title="Remove tag";x.onclick=e=>{e.stopPropagation();myTags=myTags.filter(t=>t!==c);store.set("tags",myTags);renderChecks()};b.append(x)}
+    el.append(b)});
+  const add=document.createElement("span");add.className="tadd";const inp=document.createElement("input");inp.type="text";inp.maxLength=32;inp.placeholder="+ New tag";inp.setAttribute("aria-label","Create a tag");
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const v=inp.value.trim();if(v&&!CHECKS.includes(v)&&!myTags.includes(v)){myTags=[...myTags,v];store.set("tags",myTags);
+      renderChecks();const nb=[...$("checks").querySelectorAll(".check")].find(b=>b.dataset.t===v);if(nb)nb.setAttribute("aria-pressed","true");$("checks").querySelector(".tadd input").focus()}else inp.value=""}});
+  add.append(inp);el.append(add)}
+function renderSessions(){const el=$("sessions");el.innerHTML="";const list=notes.slice(0,sessAll?notes.length:3);
+  $("sessAll").hidden=notes.length<=3;$("sessAll").textContent=sessAll?"Show less":"Show all ("+notes.length+")";
+  list.forEach(n=>{const it=document.createElement("div");it.className="sitem";
+    const m=document.createElement("div");m.className="smeta";const w=document.createElement("button");w.type="button";w.className="sword";w.textContent=D.words[n.w]?.[0]||"";
+    w.onclick=()=>{resetTimer();show(n.w);setStep("start");renderNotes();scrollTo({top:0,behavior:reduce?"auto":"smooth"})};
+    const d=document.createElement("span");d.textContent=fmtDate(n.d);m.append(w,d);it.append(m);
+    if(n.c&&n.c.length){const tg=document.createElement("div");tg.className="stags";n.c.forEach(c=>{const s=document.createElement("span");s.textContent=c;tg.append(s)});it.append(tg)}
+    if(n.t){const p=document.createElement("p");p.textContent=n.t;it.append(p)}
+    el.append(it)});
+  $("historySect").hidden=!history.length&&!notes.length}
+$("sessAll").onclick=()=>{sessAll=!sessAll;renderSessions()};
+renderSessions();
+renderCats();renderHistory();save();
+show(history.length?history[0]:Math.floor(Math.random()*D.words.length),{land:false});renderNotes();
+draw();
+</script>
+
+<script>
+(function(){
+  // keep the browser/status bar tinted to the current style
+  const meta=document.querySelector('meta[name="theme-color"]');
+  const sync=()=>{const c=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();if(c)meta.setAttribute("content",c)};
+  new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:["data-style"]});sync();
+  if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+})();
+</script>
+</body>
+</html>
